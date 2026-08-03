@@ -6,24 +6,15 @@
 (function(){
   try{
     var s=localStorage.getItem('jobtrack-auth');
-    var role=localStorage.getItem('jt_role');
     if(!s){window.location.replace('login.html');return;}
-    var parsed=JSON.parse(s);
-    if(!parsed||!parsed.access_token){window.location.replace('login.html');return;}
-    if(role==='admin'){window.location.replace('index.html');}
+    var t=JSON.parse(s);
+    if(!t||!t.access_token){window.location.replace('login.html');return;}
+    var role=localStorage.getItem('jt_role');
+    if(role==='admin'){window.location.replace('index.html');return;}
   }catch(e){window.location.replace('login.html');}
 })();
 </script>
-<script>
-/* Sync auth guard — runs before page paints */
-(function(){
-  var role=localStorage.getItem('jt_role');
-  var hasSession=false;
-  var parsed=JSON.parse(s||'null');if(parsed&&parsed.access_token)hasSession=true;
-  if(!hasSession){window.location.replace('login.html');return;}
-  if(role&&role==='admin'){window.location.replace('index.html');}
-})();
-</script><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JobTrack — My Tasks</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}

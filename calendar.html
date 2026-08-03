@@ -6,24 +6,16 @@
 (function(){
   try{
     var s=localStorage.getItem('jobtrack-auth');
-    var role=localStorage.getItem('jt_role');
     if(!s){window.location.replace('login.html');return;}
-    var parsed=JSON.parse(s);
-    if(!parsed||!parsed.access_token){window.location.replace('login.html');return;}
-    if(role&&role!=='admin'){window.location.replace('my-tasks.html');}
+    var t=JSON.parse(s);
+    if(!t||!t.access_token){window.location.replace('login.html');return;}
+    var role=localStorage.getItem('jt_role');
+    // Only redirect on role mismatch if we KNOW the role (avoids flashing on first load)
+    if(role==='drafter'){window.location.replace('my-tasks.html');return;}
   }catch(e){window.location.replace('login.html');}
 })();
 </script>
-<script>
-/* Sync auth guard — runs before page paints */
-(function(){
-  var role=localStorage.getItem('jt_role');
-  var hasSession=false;
-  var parsed=JSON.parse(s||'null');if(parsed&&parsed.access_token)hasSession=true;
-  if(!hasSession){window.location.replace('login.html');return;}
-  if(role&&role!=='admin'){window.location.replace('my-tasks.html');}
-})();
-</script><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JobTrack — Calendar</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -205,31 +197,41 @@ select.filter:focus{border-color:#185FA5}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="db.js"></script>
 <script>
-// ── Async auth verification (after page shown) ────────────────────────────
+// ── Async auth check ────────────────────────────────────────────────────────
 (async function(){
   const {data:{session}} = await db.auth.getSession();
   if(!session){
     localStorage.removeItem('jt_role');
+    localStorage.removeItem('jobtrack-auth');
     window.location.replace('login.html');
     return;
   }
   const {data:profile} = await db.from('jt_user_profiles').select('role').eq('id',session.user.id).single();
-  if(!profile||profile.role!=='admin'){
+  if(!profile){
     localStorage.removeItem('jt_role');
+    window.location.replace('login.html');
+    return;
+  }
+  // Cache the confirmed role
+  localStorage.setItem('jt_role', profile.role);
+  if(profile.role !== 'admin'){
     window.location.replace('my-tasks.html');
     return;
   }
-  localStorage.setItem('jt_role','admin');
-  // Add sign-out button
-  const hdr=document.querySelector('header');
-  if(hdr&&!document.getElementById('signout-btn')){
-    const sb=document.createElement('button');
-    sb.id='signout-btn';
-    sb.textContent='Sign out';
-    sb.style.cssText='margin-left:auto;height:30px;padding:0 12px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;color:#1a1a18;white-space:nowrap;flex-shrink:0';
-    sb.onmouseenter=()=>sb.style.background='#f0efe8';
-    sb.onmouseleave=()=>sb.style.background='#fff';
-    sb.onclick=async()=>{localStorage.removeItem('jt_role');await db.auth.signOut();window.location.replace('login.html');};
+  // Admin confirmed — add sign-out button
+  const hdr = document.querySelector('header');
+  if(hdr && !document.getElementById('signout-btn')){
+    const sb = document.createElement('button');
+    sb.id = 'signout-btn';
+    sb.textContent = 'Sign out';
+    sb.style.cssText = 'margin-left:auto;height:30px;padding:0 12px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;color:#1a1a18;white-space:nowrap;flex-shrink:0';
+    sb.onmouseenter = () => sb.style.background = '#f0efe8';
+    sb.onmouseleave = () => sb.style.background = '#fff';
+    sb.onclick = async () => {
+      localStorage.removeItem('jt_role');
+      await db.auth.signOut();
+      window.location.replace('login.html');
+    };
     hdr.appendChild(sb);
   }
 })();

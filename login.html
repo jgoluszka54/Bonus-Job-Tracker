@@ -6,14 +6,16 @@
 (function(){
   try{
     var s=localStorage.getItem('jobtrack-auth');
-    var role=localStorage.getItem('jt_role');
     if(!s)return;
-    var parsed=JSON.parse(s);
-    if(!parsed||!parsed.access_token)return;
-    if(role)window.location.replace(role==='admin'?'index.html':'my-tasks.html');
+    var t=JSON.parse(s);
+    if(!t||!t.access_token)return;
+    var role=localStorage.getItem('jt_role');
+    if(role==='admin'){window.location.replace('index.html');return;}
+    if(role==='drafter'){window.location.replace('my-tasks.html');return;}
   }catch(e){}
 })();
-</script><meta name="viewport" content="width=device-width,initial-scale=1">
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JobTrack — Sign in</title>
 
 <style>
