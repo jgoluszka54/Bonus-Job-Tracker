@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JobTrack — Projects</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;font-size:15px}
+header{background:#fff;border-bottom:1px solid #e0dfd8;padding:.85rem 1.5rem;display:flex;align-items:center;gap:1.5rem;position:sticky;top:0;z-index:10;flex-wrap:wrap}
+.logo{font-size:19px;font-weight:700;letter-spacing:-.4px;white-space:nowrap;margin-right:.5rem}.logo span{color:#185FA5}
+nav{display:flex;gap:2px;flex:1;flex-wrap:wrap}
+.nav-a{padding:6px 14px;border-radius:6px;font-size:14px;text-decoration:none;color:#6b6a65;font-weight:500;white-space:nowrap}
+.nav-a:hover{background:#f0efe8;color:#1a1a18}.nav-a.active{background:#E6F1FB;color:#0C447C}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#1baf7a;margin-left:4px;display:inline-block;vertical-align:middle}
+.sync-dot.off{background:#e0dfd8}.sync-dot.err{background:#A32D2D}
+main{padding:1.25rem 1.5rem;max-width:1400px}
+.toolbar{display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap}
+.toolbar input,.toolbar select{font-size:14px;height:36px;padding:0 10px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;color:#1a1a18;outline:none}
+.toolbar input{min-width:200px;flex:1}
+.toolbar input:focus,.toolbar select:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,.12)}
+.btn{height:36px;padding:0 14px;border-radius:6px;border:1px solid #c8c7c0;background:#fff;color:#1a1a18;font-size:14px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:#f0efe8}.btn.primary{background:#185FA5;color:#fff;border-color:#185FA5;font-weight:500}.btn.primary:hover{background:#0C447C}
+.btn.sm{height:28px;padding:0 10px;font-size:12px}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;white-space:nowrap}
+.b-active{background:#E6F1FB;color:#0C447C}.b-review{background:#FAEEDA;color:#633806}
+.b-complete{background:#EAF3DE;color:#27500A}.b-onhold{background:#F1EFE8;color:#444441}.b-cancelled{background:#FCEBEB;color:#791F1F}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #e0dfd8}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}
+thead tr{background:#f5f5f2}
+th{padding:9px 14px;text-align:left;font-weight:500;font-size:12px;color:#6b6a65;border-bottom:1px solid #e0dfd8;cursor:pointer;user-select:none;white-space:nowrap;text-transform:uppercase;letter-spacing:.4px}
+th:hover{color:#1a1a18} td{padding:10px 14px;border-bottom:1px solid #f0efe8;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none} tbody tr:hover td{background:#fafaf8}
+.sort-icon{opacity:.4;margin-left:3px;font-size:9px}
+.pbar{width:70px;height:5px;background:#e0dfd8;border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle}
+.pbar-f{height:100%;background:#185FA5;border-radius:3px}
+.task-pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;background:#f0efe8;border:1px solid #e0dfd8;border-radius:4px;padding:2px 7px;cursor:pointer;color:#444441}
+.task-pill:hover{background:#e5e4dc}.task-pill.has-open{background:#E6F1FB;border-color:#B5D4F4;color:#0C447C}
+.icon-btn{background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:4px;color:#6b6a65;font-size:15px;line-height:1}
+.icon-btn:hover{background:#f0efe8;color:#1a1a18}
+.empty{text-align:center;padding:3rem;color:#6b6a65}
+.loading{text-align:center;padding:3rem;color:#6b6a65;font-size:14px}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:1.75rem;width:600px;max-width:100%;border:1px solid #e0dfd8;max-height:90vh;overflow-y:auto}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.modal-hdr h2{font-size:18px;font-weight:600}
+.close-btn{background:none;border:none;cursor:pointer;font-size:20px;color:#6b6a65;padding:2px 6px;border-radius:4px}
+.close-btn:hover{background:#f0efe8}
+.field{margin-bottom:14px}.field label{display:block;font-size:13px;color:#6b6a65;margin-bottom:5px;font-weight:500}
+.field input,.field select,.field textarea{width:100%;padding:8px 11px;border:1px solid #c8c7c0;border-radius:7px;font-size:14px;background:#fff;color:#1a1a18;outline:none;font-family:inherit}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,.12)}
+.field textarea{height:68px;resize:vertical;line-height:1.5}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:1.5rem;padding-top:1rem;border-top:1px solid #e0dfd8}
+@media(max-width:600px){.row2,.row3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Job<span>Track</span></div>
+  <nav>
+    <a href="index.html" class="nav-a active">Projects</a>
+    <a href="tasks.html" class="nav-a">Tasks</a>
+    <a href="calendar.html" class="nav-a">Calendar</a>
+    <a href="dashboard.html" class="nav-a">Dashboard</a>
+  </nav>
+  <span title="Live sync status"><span class="sync-dot off" id="sync-dot"></span></span>
+</header>
+<main>
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Search projects…">
+    <select id="f-status"><option value="">All statuses</option><option>Active</option><option>In review</option><option>Complete</option><option>On hold</option><option>Cancelled</option></select>
+    <select id="f-drafter"><option value="">All drafters</option></select>
+    <button class="btn" onclick="openDrafterMgr()">Drafters</button>
+    <button class="btn primary" onclick="openModal()">+ Add project</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th onclick="sortBy('job_no')">Job # <span class="sort-icon" id="si-job_no"></span></th>
+        <th onclick="sortBy('client')">Client <span class="sort-icon" id="si-client"></span></th>
+        <th onclick="sortBy('description')" style="min-width:160px">Description <span class="sort-icon" id="si-description"></span></th>
+        <th onclick="sortBy('drafter')">Drafter <span class="sort-icon" id="si-drafter"></span></th>
+        <th onclick="sortBy('status')">Status <span class="sort-icon" id="si-status"></span></th>
+        <th onclick="sortBy('due_issue')">Issue date <span class="sort-icon" id="si-due_issue"></span></th>
+        <th>Progress</th><th>Tasks</th><th></th>
+      </tr></thead>
+      <tbody id="job-list"><tr><td colspan="9" class="loading">Connecting to database…</td></tr></tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Project modal -->
+<div class="modal-bg" id="modal-bg" onclick="bgClose(event,'modal-bg')">
+  <div class="modal">
+    <div class="modal-hdr"><h2 id="modal-title">Add project</h2><button class="close-btn" onclick="closeModal()">✕</button></div>
+    <div class="row2">
+      <div class="field"><label>Job number *</label><input id="f-jobNo" placeholder="e.g. 2025-001"></div>
+      <div class="field"><label>Client name *</label><input id="f-client" placeholder="Client or company"></div>
+    </div>
+    <div class="field"><label>Description</label><textarea id="f-description"></textarea></div>
+    <div class="row2">
+      <div class="field"><label>Assigned drafter</label><select id="f-drafter-field"><option value="">— Unassigned —</option></select></div>
+      <div class="field"><label>Status</label><select id="f-status-field"><option>Active</option><option>In review</option><option>Complete</option><option>On hold</option><option>Cancelled</option></select></div>
+    </div>
+    <div class="row3">
+      <div class="field"><label>Design due</label><input type="date" id="f-dueDesign"></div>
+      <div class="field"><label>Draft due</label><input type="date" id="f-dueDraft"></div>
+      <div class="field"><label>Issue date</label><input type="date" id="f-dueIssue"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Priority</label><select id="f-priority"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option><option value="low">Low</option></select></div>
+      <div class="field"><label>% Complete</label><input type="number" id="f-pct" min="0" max="100" placeholder="0–100"></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea id="f-notes"></textarea></div>
+    <div class="modal-btns"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="saveJob()">Save project</button></div>
+  </div>
+</div>
+
+<!-- Drafter manager -->
+<div class="modal-bg" id="dm-bg" onclick="bgClose(event,'dm-bg')">
+  <div class="modal" style="width:400px">
+    <div class="modal-hdr"><h2>Manage drafters</h2><button class="close-btn" onclick="closeDM()">✕</button></div>
+    <div style="display:flex;gap:8px;margin-bottom:1rem">
+      <input id="new-drafter" placeholder="Drafter name…" onkeydown="if(event.key==='Enter')addDrafter()" style="flex:1;font-size:14px;height:34px;padding:0 10px;border:1px solid #c8c7c0;border-radius:6px;outline:none">
+      <button class="btn primary" onclick="addDrafter()">Add</button>
+    </div>
+    <ul id="dm-list" style="list-style:none;margin-bottom:1rem"></ul>
+    <div class="modal-btns"><button class="btn primary" onclick="closeDM()">Done</button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="db.js"></script>
+<script>
+const SC={Active:'b-active','In review':'b-review',Complete:'b-complete','On hold':'b-onhold',Cancelled:'b-cancelled'};
+const PI={high:'🔴',urgent:'🚨',low:'⬇️',normal:''};
+let jobs=[],drafters=[],tasks=[];
+let editId=null,sortCol='job_no',sortAsc=true;
+
+const dot=document.getElementById('sync-dot');
+function setSyncDot(state){dot.className='sync-dot'+(state==='on'?' ':state==='err'?' err':' off');}
+
+async function loadAll(){
+  try{
+    const [j,d,t]=await Promise.all([
+      db.from('jt_jobs').select('*').order('job_no'),
+      db.from('jt_drafters').select('*').order('name'),
+      db.from('jt_tasks').select('*')
+    ]);
+    if(j.error||d.error||t.error)throw j.error||d.error||t.error;
+    jobs=j.data; drafters=d.data.map(r=>r.name); tasks=t.data;
+    setSyncDot('on'); refreshAll();
+  }catch(e){ setSyncDot('err'); toast('Database error: '+e.message,'error'); }
+}
+
+// Realtime
+db.channel('projects-page')
+  .on('postgres_changes',{event:'*',schema:'public',table:'jt_jobs'},()=>loadAll())
+  .on('postgres_changes',{event:'*',schema:'public',table:'jt_tasks'},()=>loadAll())
+  .on('postgres_changes',{event:'*',schema:'public',table:'jt_drafters'},()=>loadAll())
+  .subscribe(s=>setSyncDot(s==='SUBSCRIBED'?'on':'off'));
+
+function refreshAll(){
+  const fd=document.getElementById('f-drafter');
+  fd.innerHTML='<option value="">All drafters</option>'+drafters.map(d=>`<option>${d}</option>`).join('');
+  document.getElementById('f-drafter-field').innerHTML='<option value="">— Unassigned —</option>'+drafters.map(d=>`<option>${d}</option>`).join('');
+  render();
+}
+
+function render(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const fs=document.getElementById('f-status').value;
+  const fd=document.getElementById('f-drafter').value;
+  let list=jobs.filter(j=>{
+    if(fs&&j.status!==fs)return false;
+    if(fd&&j.drafter!==fd)return false;
+    if(q&&![j.job_no,j.client,j.description,j.drafter,j.notes].join(' ').toLowerCase().includes(q))return false;
+    return true;
+  });
+  list.sort((a,b)=>{const av=(a[sortCol]||'').toString(),bv=(b[sortCol]||'').toString();return sortAsc?av.localeCompare(bv,undefined,{numeric:true}):bv.localeCompare(av,undefined,{numeric:true});});
+  document.querySelectorAll('.sort-icon').forEach(e=>e.textContent='');
+  const si=document.getElementById('si-'+sortCol);if(si)si.textContent=sortAsc?'▲':'▼';
+  const tbody=document.getElementById('job-list');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="9" class="empty">${jobs.length?'No matches.':'No projects yet — click "+ Add project".'}</td></tr>`;return;}
+  tbody.innerHTML=list.map(j=>{
+    const pct=parseInt(j.pct||0);
+    const jt=tasks.filter(t=>t.job_id===j.id);
+    const open=jt.filter(t=>t.status!=='Done').length;
+    const pill=`<span class="task-pill${open>0?' has-open':''}" onclick="window.location='tasks.html?job=${j.id}'">${jt.length===0?'+ tasks':`${open} open / ${jt.length}`}</span>`;
+    return`<tr>
+      <td><strong>${j.job_no||'—'}</strong> ${PI[j.priority]||''}</td>
+      <td>${j.client||'—'}</td>
+      <td style="max-width:200px"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${j.description||'—'}</div></td>
+      <td>${j.drafter||'<span style="color:#aaa">—</span>'}</td>
+      <td><span class="badge ${SC[j.status]||''}">${j.status}</span></td>
+      <td style="font-size:13px;color:#6b6a65">${j.due_issue?fmtDate(j.due_issue):'—'}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><div class="pbar"><div class="pbar-f" style="width:${pct}%"></div></div><span style="font-size:12px;color:#6b6a65">${pct}%</span></div></td>
+      <td>${pill}</td>
+      <td><button class="icon-btn" onclick="openModal('${j.id}')">✏️</button> <button class="icon-btn" onclick="deleteJob('${j.id}')">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+function sortBy(c){sortAsc=sortCol===c?!sortAsc:true;sortCol=c;render();}
+
+function openModal(id){
+  editId=id||null;
+  const j=id?(jobs.find(x=>x.id===id)||{}):{};
+  document.getElementById('modal-title').textContent=id?'Edit project':'Add project';
+  document.getElementById('f-jobNo').value=j.job_no||'';
+  document.getElementById('f-client').value=j.client||'';
+  document.getElementById('f-description').value=j.description||'';
+  document.getElementById('f-status-field').value=j.status||'Active';
+  document.getElementById('f-dueDesign').value=j.due_design||'';
+  document.getElementById('f-dueDraft').value=j.due_draft||'';
+  document.getElementById('f-dueIssue').value=j.due_issue||'';
+  document.getElementById('f-priority').value=j.priority||'normal';
+  document.getElementById('f-pct').value=j.pct||'';
+  document.getElementById('f-notes').value=j.notes||'';
+  document.getElementById('f-drafter-field').innerHTML='<option value="">— Unassigned —</option>'+drafters.map(d=>`<option>${d}</option>`).join('');
+  if(j.drafter)document.getElementById('f-drafter-field').value=j.drafter;
+  document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');editId=null;}
+async function saveJob(){
+  const job_no=document.getElementById('f-jobNo').value.trim();
+  const client=document.getElementById('f-client').value.trim();
+  if(!job_no||!client){alert('Job number and client name are required.');return;}
+  const row={job_no,client,description:document.getElementById('f-description').value.trim(),
+    drafter:document.getElementById('f-drafter-field').value,status:document.getElementById('f-status-field').value,
+    due_design:document.getElementById('f-dueDesign').value||null,due_draft:document.getElementById('f-dueDraft').value||null,
+    due_issue:document.getElementById('f-dueIssue').value||null,priority:document.getElementById('f-priority').value,
+    pct:parseInt(document.getElementById('f-pct').value)||0,notes:document.getElementById('f-notes').value.trim(),
+    updated_at:new Date().toISOString()};
+  const {error}=editId?await db.from('jt_jobs').update(row).eq('id',editId):await db.from('jt_jobs').insert(row);
+  if(error){toast('Save failed: '+error.message,'error');}else{toast(editId?'Project updated':'Project added','ok');closeModal();}
+}
+async function deleteJob(id){
+  const j=jobs.find(x=>x.id===id);if(!j)return;
+  if(!confirm(`Delete "${j.job_no} — ${j.client}"? All tasks will also be deleted.`))return;
+  const {error}=await db.from('jt_jobs').delete().eq('id',id);
+  if(error)toast('Delete failed: '+error.message,'error');
+}
+
+function openDrafterMgr(){renderDM();document.getElementById('dm-bg').classList.add('open');}
+function closeDM(){document.getElementById('dm-bg').classList.remove('open');}
+function renderDM(){
+  document.getElementById('dm-list').innerHTML=drafters.map(d=>`
+    <li style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border:1px solid #e0dfd8;border-radius:6px;margin-bottom:6px;font-size:14px;background:#fafaf8">
+      <span>${d}</span><button class="btn sm" onclick="removeDrafter('${d.replace(/'/g,"\\'")}')">Remove</button>
+    </li>`).join('');
+}
+async function addDrafter(){
+  const v=document.getElementById('new-drafter').value.trim();if(!v)return;
+  const {error}=await db.from('jt_drafters').insert({name:v});
+  if(error)toast('Could not add: '+error.message,'error');
+  else{document.getElementById('new-drafter').value='';toast('Drafter added','ok');}
+}
+async function removeDrafter(n){
+  if(!confirm(`Remove "${n}"?`))return;
+  await db.from('jt_drafters').delete().eq('name',n);
+}
+
+function bgClose(e,id){if(e.target.id===id)document.getElementById(id).classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeDM();}});
+['search','f-status','f-drafter'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',render);el.addEventListener('change',render);}});
+loadAll();
+</script>
+</body></html>
