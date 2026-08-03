@@ -150,27 +150,19 @@ function setSyncDot(s){dot.style.background=s==='on'?'#1baf7a':s==='err'?'#A32D2
 
 // ── Auth gate ──────────────────────────────────────────────────────────────
 async function init(){
-  // Keep page invisible until we confirm auth — prevents flash
-  const {data:{session}}=await db.auth.getSession();
-  if(!session){window.location.replace('login.html');return;}
-  myUser=session.user;
-
-  // Load profile
-  const {data:profile,error}=await db.from('jt_user_profiles').select('*').eq('id',myUser.id).single();
-  if(error||!profile){window.location.replace('login.html');return;}
-  myProfile=profile;
-
-  // Admins belong on the full app
-  if(profile.role==='admin'){window.location.replace('index.html');return;}
+  const auth = await requireAuth('drafter');
+  if(!auth) return; // requireAuth handled redirect
+  myUser  = auth.session.user;
+  myProfile = auth.profile;
 
   // Set header
-  const name=profile.drafter_name||myUser.email;
-  document.getElementById('user-name').textContent=name;
-  document.getElementById('user-avatar').textContent=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  document.title=`JobTrack — ${name}'s Tasks`;
+  const name = myProfile.drafter_name || myUser.email;
+  document.getElementById('user-name').textContent   = name;
+  document.getElementById('user-avatar').textContent = name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.title = `JobTrack — ${name}'s Tasks`;
 
-  // Auth confirmed — now show the page
-  document.body.classList.add('ready');
+  // Auth confirmed — show the page
+  document.body.style.opacity = '1';
 
   await loadTasks();
   setupRealtime();

@@ -1,12 +1,57 @@
 // ── JobTrack — Supabase config ─────────────────────────────────────────────
 // Replace the two values below with your own project URL and anon key.
 // You can find them in: Supabase dashboard → Project Settings → API
-const SUPABASE_URL  = 'https://asycaodiboxzjynxyqwu.supabase.co';   
-const SUPABASE_ANON = 'sb_publishable_FnX3URRSvvOKR1Qs_buNoQ_6nGLmniJ';
+const SUPABASE_URL  = 'YOUR_SUPABASE_URL';   // e.g. https://abcxyz.supabase.co
+const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
 
 // ── Client ─────────────────────────────────────────────────────────────────
 const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+const db = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: {
+    persistSession: true,
+    storageKey: 'jobtrack-auth',
+    storage: window.localStorage,
+    autoRefreshToken: true,
+    detectSessionInUrl: false
+  }
+});
+
+// ── Page routing helper ─────────────────────────────────────────────────────
+// Call this at the top of every protected page.
+// role: 'admin' = full app, 'drafter' = my-tasks only
+// Returns the profile if authorized, otherwise redirects and returns null.
+async function requireAuth(requiredRole){
+  const { data:{ session } } = await db.auth.getSession();
+  if(!session){
+    if(window.location.pathname.endsWith('login.html')) return null; // already there
+    window.location.replace('login.html');
+    return null;
+  }
+  const { data: profile } = await db
+    .from('jt_user_profiles')
+    .select('*')
+    .eq('id', session.user.id)
+    .single();
+
+  if(!profile){
+    await db.auth.signOut();
+    window.location.replace('login.html');
+    return null;
+  }
+
+  // Admin trying to hit drafter page — send to full app
+  if(requiredRole === 'drafter' && profile.role === 'admin'){
+    window.location.replace('index.html');
+    return null;
+  }
+  // Drafter trying to hit admin page — send to their tasks
+  if(requiredRole === 'admin' && profile.role !== 'admin'){
+    window.location.replace('my-tasks.html');
+    return null;
+  }
+
+  return { session, profile };
+}
 
 // ── Shared helpers ─────────────────────────────────────────────────────────
 function uid(){ return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2); }
