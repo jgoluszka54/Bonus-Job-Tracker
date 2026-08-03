@@ -115,7 +115,10 @@ tbody tr:last-child td{border-bottom:none} tbody tr:hover td{background:#fafaf8}
     </div>
     <div class="field"><label>Description</label><textarea id="f-description"></textarea></div>
     <div class="row2">
-      <div class="field"><label>Assigned drafter</label><select id="f-drafter-field"><option value="">— Unassigned —</option></select></div>
+      <div class="field"><label>Assigned drafters</label>
+        <div id="f-drafter-field" style="border:1px solid #c8c7c0;border-radius:7px;padding:8px;max-height:130px;overflow-y:auto;background:#fff;display:flex;flex-direction:column;gap:4px"></div>
+        <div style="font-size:11px;color:#6b6a65;margin-top:4px">Check all that apply</div>
+      </div>
       <div class="field"><label>Status</label><select id="f-status-field"><option>Active</option><option>In review</option><option>Complete</option><option>On hold</option><option>Cancelled</option></select></div>
     </div>
     <div class="row3">
@@ -198,7 +201,6 @@ db.channel('projects-page')
 function refreshAll(){
   const fd=document.getElementById('f-drafter');
   fd.innerHTML='<option value="">All drafters</option>'+drafters.map(d=>`<option>${d}</option>`).join('');
-  document.getElementById('f-drafter-field').innerHTML='<option value="">— Unassigned —</option>'+drafters.map(d=>`<option>${d}</option>`).join('');
   render();
 }
 
@@ -208,7 +210,10 @@ function render(){
   const fd=document.getElementById('f-drafter').value;
   let list=jobs.filter(j=>{
     if(fs&&j.status!==fs)return false;
-    if(fd&&j.drafter!==fd)return false;
+    if(fd){
+      const jdrafters=(j.drafter||'').split(',').map(s=>s.trim());
+      if(!jdrafters.includes(fd))return false;
+    }
     if(q&&![j.job_no,j.client,j.description,j.drafter,j.notes].join(' ').toLowerCase().includes(q))return false;
     return true;
   });
@@ -226,7 +231,7 @@ function render(){
       <td><strong>${j.job_no||'—'}</strong> ${PI[j.priority]||''}</td>
       <td>${j.client||'—'}</td>
       <td style="max-width:200px"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${j.description||'—'}</div></td>
-      <td>${j.drafter||'<span style="color:#aaa">—</span>'}</td>
+      <td>${j.drafter?j.drafter.split(',').map(d=>`<span style="display:inline-block;background:#f0efe8;border-radius:4px;padding:1px 6px;font-size:12px;margin:1px">${d.trim()}</span>`).join(' '):'<span style="color:#aaa">—</span>'}</td>
       <td><span class="badge ${SC[j.status]||''}">${j.status}</span></td>
       <td style="font-size:13px;color:#6b6a65">${j.due_issue?fmtDate(j.due_issue):'—'}</td>
       <td><div style="display:flex;align-items:center;gap:6px"><div class="pbar"><div class="pbar-f" style="width:${pct}%"></div></div><span style="font-size:12px;color:#6b6a65">${pct}%</span></div></td>
@@ -251,8 +256,13 @@ function openModal(id){
   document.getElementById('f-priority').value=j.priority||'normal';
   document.getElementById('f-pct').value=j.pct||'';
   document.getElementById('f-notes').value=j.notes||'';
-  document.getElementById('f-drafter-field').innerHTML='<option value="">— Unassigned —</option>'+drafters.map(d=>`<option>${d}</option>`).join('');
-  if(j.drafter)document.getElementById('f-drafter-field').value=j.drafter;
+  // Populate drafter checkboxes
+  const currentDrafters=(j.drafter||'').split(',').map(s=>s.trim()).filter(Boolean);
+  document.getElementById('f-drafter-field').innerHTML=drafters.map(d=>`
+    <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;padding:2px 0">
+      <input type="checkbox" value="${d}" ${currentDrafters.includes(d)?'checked':''} style="width:15px;height:15px;cursor:pointer">
+      ${d}
+    </label>`).join('');
   document.getElementById('modal-bg').classList.add('open');
 }
 function closeModal(){document.getElementById('modal-bg').classList.remove('open');editId=null;}
@@ -260,8 +270,9 @@ async function saveJob(){
   const job_no=document.getElementById('f-jobNo').value.trim();
   const client=document.getElementById('f-client').value.trim();
   if(!job_no||!client){alert('Job number and client name are required.');return;}
+  const checkedDrafters=[...document.querySelectorAll('#f-drafter-field input[type=checkbox]:checked')].map(cb=>cb.value);
   const row={job_no,client,description:document.getElementById('f-description').value.trim(),
-    drafter:document.getElementById('f-drafter-field').value,status:document.getElementById('f-status-field').value,
+    drafter:checkedDrafters.join(', '),status:document.getElementById('f-status-field').value,
     due_design:document.getElementById('f-dueDesign').value||null,due_draft:document.getElementById('f-dueDraft').value||null,
     due_issue:document.getElementById('f-dueIssue').value||null,priority:document.getElementById('f-priority').value,
     pct:parseInt(document.getElementById('f-pct').value)||0,notes:document.getElementById('f-notes').value.trim(),

@@ -240,7 +240,7 @@ async function loadTasks(){
 
     // All jobs assigned to this drafter (for context + add-task dropdown)
     const {data:j,error:je}=await db.from('jt_jobs')
-      .select('id,job_no,client,status,drafter').eq('drafter',dn);
+      .select('id,job_no,client,status,drafter').ilike('drafter','%'+dn+'%');
     if(je)throw je;
     myJobs=j||[];
 
