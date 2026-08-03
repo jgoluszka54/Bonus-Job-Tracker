@@ -5,16 +5,16 @@
 <script>
 (function(){
   try{
-    var s=localStorage.getItem('jobtrack-auth');
     var role=localStorage.getItem('jt_role');
-    if(!s||!role){window.location.replace('login.html');return;}
-    var t=JSON.parse(s);
-    if(!t||!t.access_token){window.location.replace('login.html');return;}
-    if(role!=='admin'){window.location.replace('my-tasks.html');}
+    var auth=localStorage.getItem('jobtrack-auth');
+    if(!auth||!role||role!=='admin'){
+      // Clear stale data and go to login
+      localStorage.removeItem('jt_role');
+      window.location.replace('login.html');
+    }
   }catch(e){window.location.replace('login.html');}
 })();
 </script>
-
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JobTrack — Calendar</title>
 <style>
