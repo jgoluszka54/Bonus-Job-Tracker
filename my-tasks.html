@@ -97,9 +97,10 @@ main{padding:1.25rem 1.5rem;max-width:900px;margin:0 auto}
 .close-btn{background:none;border:none;cursor:pointer;font-size:20px;color:#6b6a65;padding:2px 6px;border-radius:4px}
 .close-btn:hover{background:#f0efe8}
 .field{margin-bottom:14px}.field label{display:block;font-size:13px;color:#6b6a65;margin-bottom:5px;font-weight:500}
-.field select,.field textarea{width:100%;padding:8px 11px;border:1px solid #c8c7c0;border-radius:7px;font-size:14px;background:#fff;color:#1a1a18;outline:none;font-family:inherit}
-.field select:focus,.field textarea:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,.12)}
-.field textarea{height:80px;resize:vertical;line-height:1.5}
+.field input,.field select,.field textarea{width:100%;padding:8px 11px;border:1px solid #c8c7c0;border-radius:7px;font-size:14px;background:#fff;color:#1a1a18;outline:none;font-family:inherit}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,.12)}
+.field textarea{height:68px;resize:vertical;line-height:1.5}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;padding-top:1rem;border-top:1px solid #e0dfd8}
 .btn{height:34px;padding:0 14px;border-radius:6px;border:1px solid #c8c7c0;background:#fff;color:#1a1a18;font-size:14px;cursor:pointer}
 .btn:hover{background:#f0efe8}.btn.primary{background:#185FA5;color:#fff;border-color:#185FA5;font-weight:500}.btn.primary:hover{background:#0C447C}
@@ -128,10 +129,53 @@ main{padding:1.25rem 1.5rem;max-width:900px;margin:0 auto}
       <option value="Blocked">Blocked</option>
       <option value="Done">Done</option>
     </select>
+    <button class="btn primary" onclick="openAddTask()">+ Add task</button>
   </div>
 
   <div id="task-list"><div class="loading">Loading your tasks…</div></div>
 </main>
+
+<!-- Add Task modal -->
+<div class="modal-bg" id="add-modal-bg" onclick="if(event.target.id==='add-modal-bg')closeAddTask()">
+  <div class="modal">
+    <div class="modal-hdr"><h2>Add task</h2><button class="close-btn" onclick="closeAddTask()">✕</button></div>
+    <div class="field">
+      <label>Project *</label>
+      <select id="a-jobId"><option value="">Select project…</option></select>
+    </div>
+    <div class="field">
+      <label>Task name *</label>
+      <input type="text" id="a-name" placeholder="What needs to be done?">
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea id="a-desc" placeholder="Additional details…"></textarea>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Priority</label>
+        <select id="a-priority">
+          <option value="normal">Normal</option>
+          <option value="high">High</option>
+          <option value="urgent">Urgent</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Due date</label>
+        <input type="date" id="a-due">
+      </div>
+    </div>
+    <div class="field">
+      <label>Notes</label>
+      <textarea id="a-notes" placeholder="Optional notes…"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeAddTask()">Cancel</button>
+      <button class="btn primary" onclick="saveNewTask()">Add task</button>
+    </div>
+  </div>
+</div>
 
 <!-- Status update modal -->
 <div class="modal-bg" id="modal-bg" onclick="if(event.target.id==='modal-bg')closeModal()">
@@ -200,13 +244,13 @@ async function loadTasks(){
     if(te)throw te;
     myTasks=t||[];
 
-    // Jobs for those tasks
-    const jobIds=[...new Set(myTasks.map(t=>t.job_id).filter(Boolean))];
-    if(jobIds.length){
-      const {data:j,error:je}=await db.from('jt_jobs').select('id,job_no,client,status,drafter').in('id',jobIds);
-      if(je)throw je;
-      myJobs=j||[];
-    } else {myJobs=[];}
+    // Load all jobs assigned to this drafter (for task dropdown + context)
+    const drafterName=myProfile.drafter_name;
+    const {data:j,error:je}=await db.from('jt_jobs')
+      .select('id,job_no,client,status,drafter')
+      .eq('drafter', drafterName);
+    if(je)throw je;
+    myJobs=j||[];
 
     setSyncDot('on');
     render();
@@ -362,9 +406,42 @@ async function saveUpdate(){
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 ['search','f-status'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',render);el.addEventListener('change',render);}});
 
+// ── Add task ───────────────────────────────────────────────────────────────
+function openAddTask(){
+  const sel=document.getElementById('a-jobId');
+  sel.innerHTML='<option value="">Select project…</option>'+
+    myJobs.filter(j=>j.status!=='Complete'&&j.status!=='Cancelled')
+      .map(j=>`<option value="${j.id}">${j.job_no} — ${j.client}</option>`).join('');
+  ['a-name','a-desc','a-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('a-priority').value='normal';
+  document.getElementById('a-due').value='';
+  document.getElementById('add-modal-bg').style.display='flex';
+  setTimeout(()=>document.getElementById('a-name').focus(),50);
+}
+function closeAddTask(){document.getElementById('add-modal-bg').style.display='none';}
+
+async function saveNewTask(){
+  const job_id=document.getElementById('a-jobId').value;
+  const name=document.getElementById('a-name').value.trim();
+  if(!job_id||!name){alert('Please select a project and enter a task name.');return;}
+  const {error}=await db.from('jt_tasks').insert({
+    job_id, name,
+    description:document.getElementById('a-desc').value.trim(),
+    status:'To do',
+    priority:document.getElementById('a-priority').value,
+    assignee:myProfile.drafter_name,
+    due:document.getElementById('a-due').value||null,
+    notes:document.getElementById('a-notes').value.trim(),
+  });
+  if(error){toast('Could not add: '+error.message,'error');return;}
+  toast('Task added ✓','ok');
+  closeAddTask();
+}
+
 async function signOut(){
+  localStorage.removeItem('jt_role');
   await db.auth.signOut();
-  window.location.href='login.html';
+  window.location.replace('login.html');
 }
 
 init();
