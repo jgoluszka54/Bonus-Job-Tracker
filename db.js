@@ -2,7 +2,7 @@
 // Replace the two values below with your own project URL and anon key.
 // You can find them in: Supabase dashboard → Project Settings → API
 const SUPABASE_URL  = 'https://asycaodiboxzjynxyqwu.supabase.co';  
-const SUPABASE_ANON = 'sb_publishable_FnX3URRSvvOKR1Qs_buNoQ_6nGLmniJ';
+const SUPABASE_ANON = 'sb_publishable_zIawOF-lNGhC8gk5hEhGog_dImzAvRd';
 
 // ── Client ─────────────────────────────────────────────────────────────────
 const { createClient } = supabase;
