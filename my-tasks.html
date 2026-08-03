@@ -228,27 +228,19 @@ async function init(){
 
 async function loadTasks(){
   try{
-    // Filter by assignee explicitly — don't rely solely on RLS
-    const drafterName = myProfile.drafter_name;
-    if(!drafterName){
-      myTasks=[];
-      myJobs=[];
-      render();
-      return;
-    }
+    const dn=myProfile.drafter_name;
+    if(!dn){ myTasks=[]; myJobs=[]; render(); return; }
+
+    // Tasks assigned to this drafter
     const {data:t,error:te}=await db.from('jt_tasks')
-      .select('*')
-      .eq('assignee', drafterName)
-      .order('due',{nullsFirst:false})
-      .order('created_at');
+      .select('*').eq('assignee',dn)
+      .order('due',{nullsFirst:false}).order('created_at');
     if(te)throw te;
     myTasks=t||[];
 
-    // Load all jobs assigned to this drafter (for task dropdown + context)
-    const drafterName=myProfile.drafter_name;
+    // All jobs assigned to this drafter (for context + add-task dropdown)
     const {data:j,error:je}=await db.from('jt_jobs')
-      .select('id,job_no,client,status,drafter')
-      .eq('drafter', drafterName);
+      .select('id,job_no,client,status,drafter').eq('drafter',dn);
     if(je)throw je;
     myJobs=j||[];
 
@@ -403,7 +395,7 @@ async function saveUpdate(){
   else{toast('Task updated','ok');closeModal();}
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeAddTask();}});
 ['search','f-status'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',render);el.addEventListener('change',render);}});
 
 // ── Add task ───────────────────────────────────────────────────────────────
@@ -415,10 +407,10 @@ function openAddTask(){
   ['a-name','a-desc','a-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('a-priority').value='normal';
   document.getElementById('a-due').value='';
-  document.getElementById('add-modal-bg').style.display='flex';
+  document.getElementById('add-modal-bg').classList.add('open');
   setTimeout(()=>document.getElementById('a-name').focus(),50);
 }
-function closeAddTask(){document.getElementById('add-modal-bg').style.display='none';}
+function closeAddTask(){document.getElementById('add-modal-bg').classList.remove('open');}
 
 async function saveNewTask(){
   const job_id=document.getElementById('a-jobId').value;
