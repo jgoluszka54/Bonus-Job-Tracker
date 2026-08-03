@@ -236,17 +236,31 @@ function setSyncDot(s){const d=document.getElementById('sync-dot');if(d)d.style.
 
 async function loadAll(){
   try{
+    // Ensure we have a valid session first
+    const {data:{session}} = await db.auth.getSession();
+    if(!session){
+      setSyncDot('err');
+      document.getElementById('dgrid').innerHTML='<div class="empty"><strong>Session expired</strong><br><a href="login.html">Sign in again</a></div>';
+      return;
+    }
     const [j,d,t]=await Promise.all([
       db.from('jt_jobs').select('*').order('job_no'),
       db.from('jt_drafters').select('*').order('name'),
       db.from('jt_tasks').select('*')
     ]);
-    if(j.error||d.error||t.error)throw j.error||d.error||t.error;
-    jobs=j.data; drafters=d.data.map(r=>r.name); tasks=t.data;
+    if(j.error)throw new Error('Jobs: '+j.error.message);
+    if(d.error)throw new Error('Drafters: '+d.error.message);
+    if(t.error)throw new Error('Tasks: '+t.error.message);
+    jobs=j.data||[]; drafters=(d.data||[]).map(r=>r.name); tasks=t.data||[];
     const sr=await db.from('jt_settings').select('value').eq('key','hrsPerDay').single();
     if(sr.data)cachedHpd=Math.max(1,parseFloat(sr.data.value)||8);
+    console.log('[Dashboard] Loaded:',jobs.length,'jobs,',drafters.length,'drafters,',tasks.length,'tasks');
     setSyncDot('on'); populateFilters(); renderAll();
-  }catch(e){setSyncDot('err');toast('Database error: '+e.message,'error');}
+  }catch(e){
+    setSyncDot('err');
+    console.error('[Dashboard] Load error:',e.message);
+    toast('Load error: '+e.message,'error');
+  }
 }
 db.channel('dash-page')
   .on('postgres_changes',{event:'*',schema:'public',table:'jt_jobs'},()=>loadAll())
@@ -345,9 +359,10 @@ function renderCards(allDrafters,filteredJobs){
     const activeJobs=myJobs.filter(j=>j.status==='Active'||j.status==='In review');
     // Tasks assigned directly to this drafter, or on jobs assigned to them
     const myTasks=tasks.filter(t=>{
-      if(t.assignee===d)return true; // directly assigned
+      if(t.assignee===d)return true; // directly assigned by name
       const j=jobs.find(x=>x.id===t.job_id);
-      return j&&j.drafter===d&&!t.assignee; // job is theirs and no specific assignee
+      // job has this drafter listed (may be comma-separated) and task has no specific assignee
+      return j&&(j.drafter||'').split(',').map(s=>s.trim()).includes(d)&&!t.assignee;
     });
     const openTasks=myTasks.filter(t=>t.status!=='Done');
     const blockedTasks=myTasks.filter(t=>t.status==='Blocked').length;
@@ -405,11 +420,11 @@ function switchTab(drafter,tab){
   const myTasks=tasks.filter(t=>{
     if(t.assignee===drafter)return true;
     const j=jobs.find(x=>x.id===t.job_id);
-    return j&&j.drafter===drafter&&!t.assignee;
+    return j&&(j.drafter||'').split(',').map(s=>s.trim()).includes(drafter)&&!t.assignee;
   });
   const openTasks=myTasks.filter(t=>t.status!=='Done');
   const fs=document.getElementById('f-status').value;
-  const myJobs=jobs.filter(j=>j.drafter===drafter&&j.status!=='Cancelled'&&(fs?j.status===fs:true));
+  const myJobs=jobs.filter(j=>(j.drafter||'').split(',').map(s=>s.trim()).includes(drafter)&&j.status!=='Cancelled'&&(fs?j.status===fs:true));
   inner.innerHTML=tab==='tasks'?renderTasksInner(openTasks,myTasks):renderJobsInner(myJobs);
 }
 
