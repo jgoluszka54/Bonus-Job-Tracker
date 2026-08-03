@@ -6,15 +6,15 @@
 (function(){
   try{
     var s=localStorage.getItem('jobtrack-auth');
-    if(!s){window.location.replace('login.html');return;}
+    var role=localStorage.getItem('jt_role');
+    if(!s||!role){window.location.replace('login.html');return;}
     var t=JSON.parse(s);
     if(!t||!t.access_token){window.location.replace('login.html');return;}
-    var role=localStorage.getItem('jt_role');
-    // Only redirect on role mismatch if we KNOW the role (avoids flashing on first load)
-    if(role==='drafter'){window.location.replace('my-tasks.html');return;}
+    if(role!=='admin'){window.location.replace('my-tasks.html');}
   }catch(e){window.location.replace('login.html');}
 })();
 </script>
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JobTrack — Tasks</title>
 <style>
@@ -158,28 +158,8 @@ main{padding:1.25rem 1.5rem;max-width:1400px}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="db.js"></script>
 <script>
-// ── Async auth check ────────────────────────────────────────────────────────
+// ── Add sign-out button ─────────────────────────────────────────────────────
 (async function(){
-  const {data:{session}} = await db.auth.getSession();
-  if(!session){
-    localStorage.removeItem('jt_role');
-    localStorage.removeItem('jobtrack-auth');
-    window.location.replace('login.html');
-    return;
-  }
-  const {data:profile} = await db.from('jt_user_profiles').select('role').eq('id',session.user.id).single();
-  if(!profile){
-    localStorage.removeItem('jt_role');
-    window.location.replace('login.html');
-    return;
-  }
-  // Cache the confirmed role
-  localStorage.setItem('jt_role', profile.role);
-  if(profile.role !== 'admin'){
-    window.location.replace('my-tasks.html');
-    return;
-  }
-  // Admin confirmed — add sign-out button
   const hdr = document.querySelector('header');
   if(hdr && !document.getElementById('signout-btn')){
     const sb = document.createElement('button');

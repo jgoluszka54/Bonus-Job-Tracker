@@ -6,14 +6,15 @@
 (function(){
   try{
     var s=localStorage.getItem('jobtrack-auth');
-    if(!s){window.location.replace('login.html');return;}
+    var role=localStorage.getItem('jt_role');
+    if(!s||!role){window.location.replace('login.html');return;}
     var t=JSON.parse(s);
     if(!t||!t.access_token){window.location.replace('login.html');return;}
-    var role=localStorage.getItem('jt_role');
-    if(role==='admin'){window.location.replace('index.html');return;}
+    if(role==='admin'){window.location.replace('index.html');}
   }catch(e){window.location.replace('login.html');}
 })();
 </script>
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JobTrack — My Tasks</title>
 <style>
