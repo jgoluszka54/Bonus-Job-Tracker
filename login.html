@@ -5,7 +5,9 @@
 <title>JobTrack — Sign in</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+/* Page hidden by default until auth check completes */
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;transition:opacity .15s}
+body.ready{opacity:1}
 .card{background:#fff;border:1px solid #e0dfd8;border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,.07)}
 .logo{font-size:26px;font-weight:700;letter-spacing:-.5px;text-align:center;margin-bottom:.5rem}
 .logo span{color:#185FA5}
@@ -42,10 +44,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="db.js"></script>
 <script>
-// If already signed in, redirect immediately
-db.auth.getSession().then(({data})=>{
-  if(data.session)redirectUser(data.session.user);
-});
+// Check session BEFORE showing anything — prevents flash
+(async function(){
+  const {data:{session}}=await db.auth.getSession();
+  if(session){
+    // Already logged in — redirect silently (page stays invisible)
+    await redirectUser(session.user);
+  } else {
+    // Not logged in — show the login form
+    document.body.classList.add('ready');
+    document.getElementById('email').focus();
+  }
+})();
 
 async function signIn(){
   const email=document.getElementById('email').value.trim();
@@ -57,25 +67,27 @@ async function signIn(){
   btn.disabled=true; btn.textContent='Signing in…';
   const {data,error}=await db.auth.signInWithPassword({email,password});
   if(error){
-    showErr(error.message==='Invalid login credentials'?'Incorrect email or password. Please try again.':error.message);
+    showErr(error.message==='Invalid login credentials'
+      ?'Incorrect email or password. Please try again.'
+      :error.message);
     btn.disabled=false; btn.textContent='Sign in';
     return;
   }
-  redirectUser(data.user);
+  await redirectUser(data.user);
 }
 
 async function redirectUser(user){
-  // Fetch role from profile
   const {data}=await db.from('jt_user_profiles').select('role').eq('id',user.id).single();
   const role=data?.role||'drafter';
-  if(role==='admin'){
-    window.location.href='index.html';
-  } else {
-    window.location.href='my-tasks.html';
-  }
+  // Replace so the back button doesn't return to login
+  window.location.replace(role==='admin'?'index.html':'my-tasks.html');
 }
 
-function showErr(msg){const e=document.getElementById('err');e.textContent=msg;e.className='err show';}
+function showErr(msg){
+  const e=document.getElementById('err');
+  e.textContent=msg;
+  e.className='err show';
+}
 </script>
 </body>
 </html>

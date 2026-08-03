@@ -5,7 +5,8 @@
 <title>JobTrack — My Tasks</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;font-size:15px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;font-size:15px;opacity:0;transition:opacity .15s}
+body.ready{opacity:1}
 header{background:#fff;border-bottom:1px solid #e0dfd8;padding:.85rem 1.5rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10;flex-wrap:wrap}
 .logo{font-size:19px;font-weight:700;letter-spacing:-.4px;white-space:nowrap}.logo span{color:#185FA5}
 .user-badge{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:14px;color:#6b6a65}
@@ -149,23 +150,27 @@ function setSyncDot(s){dot.style.background=s==='on'?'#1baf7a':s==='err'?'#A32D2
 
 // ── Auth gate ──────────────────────────────────────────────────────────────
 async function init(){
+  // Keep page invisible until we confirm auth — prevents flash
   const {data:{session}}=await db.auth.getSession();
-  if(!session){window.location.href='login.html';return;}
+  if(!session){window.location.replace('login.html');return;}
   myUser=session.user;
 
   // Load profile
   const {data:profile,error}=await db.from('jt_user_profiles').select('*').eq('id',myUser.id).single();
-  if(error||!profile){window.location.href='login.html';return;}
+  if(error||!profile){window.location.replace('login.html');return;}
   myProfile=profile;
 
-  // Admins go to the full app
-  if(profile.role==='admin'){window.location.href='index.html';return;}
+  // Admins belong on the full app
+  if(profile.role==='admin'){window.location.replace('index.html');return;}
 
   // Set header
   const name=profile.drafter_name||myUser.email;
   document.getElementById('user-name').textContent=name;
   document.getElementById('user-avatar').textContent=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
   document.title=`JobTrack — ${name}'s Tasks`;
+
+  // Auth confirmed — now show the page
+  document.body.classList.add('ready');
 
   await loadTasks();
   setupRealtime();

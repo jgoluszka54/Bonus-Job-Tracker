@@ -5,7 +5,7 @@
 <title>JobTrack — Calendar</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;font-size:15px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;font-size:15px;opacity:0;transition:opacity .15s}
 header{background:#fff;border-bottom:1px solid #e0dfd8;padding:.85rem 1.5rem;display:flex;align-items:center;gap:1.5rem;position:sticky;top:0;z-index:20;flex-wrap:wrap}
 .logo{font-size:19px;font-weight:700;letter-spacing:-.4px;white-space:nowrap;margin-right:.5rem}.logo span{color:#185FA5}
 nav{display:flex;gap:2px;flex:1;flex-wrap:wrap}
@@ -186,22 +186,23 @@ select.filter:focus{border-color:#185FA5}
 // ── Auth guard — admin only ────────────────────────────────────────────────
 (async function(){
   const {data:{session}}=await db.auth.getSession();
-  if(!session){window.location.href='login.html';return;}
+  if(!session){window.location.replace('login.html');return;}
   const {data:profile}=await db.from('jt_user_profiles').select('role,drafter_name').eq('id',session.user.id).single();
   if(!profile||profile.role!=='admin'){
-    // Drafters go to their own task view
-    window.location.href='my-tasks.html';
+    window.location.replace('my-tasks.html');
     return;
   }
-  // Show sign-out in header
+  // Auth confirmed — show page
+  document.body.style.opacity='1';
+  // Add sign-out button
   const hdr=document.querySelector('header');
   if(hdr){
     const sb=document.createElement('button');
     sb.textContent='Sign out';
-    sb.style.cssText='margin-left:auto;height:30px;padding:0 12px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;color:#1a1a18;white-space:nowrap';
+    sb.style.cssText='margin-left:auto;height:30px;padding:0 12px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;color:#1a1a18;white-space:nowrap;flex-shrink:0';
     sb.onmouseenter=()=>sb.style.background='#f0efe8';
     sb.onmouseleave=()=>sb.style.background='#fff';
-    sb.onclick=async()=>{await db.auth.signOut();window.location.href='login.html';};
+    sb.onclick=async()=>{await db.auth.signOut();window.location.replace('login.html');};
     hdr.appendChild(sb);
   }
 })();
