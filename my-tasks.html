@@ -184,8 +184,19 @@ async function init(){
 
 async function loadTasks(){
   try{
-    // Tasks assigned to me (RLS enforces this — only my tasks come back)
-    const {data:t,error:te}=await db.from('jt_tasks').select('*').order('due',{nullsFirst:false}).order('created_at');
+    // Filter by assignee explicitly — don't rely solely on RLS
+    const drafterName = myProfile.drafter_name;
+    if(!drafterName){
+      myTasks=[];
+      myJobs=[];
+      render();
+      return;
+    }
+    const {data:t,error:te}=await db.from('jt_tasks')
+      .select('*')
+      .eq('assignee', drafterName)
+      .order('due',{nullsFirst:false})
+      .order('created_at');
     if(te)throw te;
     myTasks=t||[];
 
@@ -261,8 +272,12 @@ function render(){
     <div class="kpi"><div class="kpi-n green">${done}</div><div class="kpi-l">Done</div></div>
   `;
 
+  if(!myProfile.drafter_name){
+    document.getElementById('task-list').innerHTML=`<div class="empty"><strong>Account not fully set up</strong>Your administrator needs to link your account to a drafter name. Contact them to fix this.</div>`;
+    return;
+  }
   if(!filtered.length){
-    document.getElementById('task-list').innerHTML=`<div class="empty"><strong>${myTasks.length?'No matches':'No tasks assigned to you yet'}</strong>${myTasks.length?'Try changing the filters.':'Your manager will assign tasks that appear here.'}</div>`;
+    document.getElementById('task-list').innerHTML=`<div class="empty"><strong>${myTasks.length?'No matches':'No tasks assigned to you yet'}</strong>${myTasks.length?'Try changing the filters.':'Tasks assigned to you will appear here automatically.'}</div>`;
     return;
   }
 
