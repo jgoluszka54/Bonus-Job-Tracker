@@ -1,8 +1,8 @@
 // ── JobTrack — Supabase config ─────────────────────────────────────────────
 // Replace the two values below with your own project URL and anon key.
 // You can find them in: Supabase dashboard → Project Settings → API
-const SUPABASE_URL  = 'YOUR_SUPABASE_URL';   // e.g. https://abcxyz.supabase.co
-const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL  = 'https://asycaodiboxzjynxyqwu.supabase.co';   // e.g. https://abcxyz.supabase.co
+const SUPABASE_ANON = 'sb_publishable_FnX3URRSvvOKR1Qs_buNoQ_6nGLmniJ';
 
 // ── Client ─────────────────────────────────────────────────────────────────
 const { createClient } = supabase;
