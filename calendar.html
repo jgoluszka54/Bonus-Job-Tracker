@@ -3,6 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <script>
+(function(){
+  try{
+    var s=localStorage.getItem('jobtrack-auth');
+    var role=localStorage.getItem('jt_role');
+    if(!s){window.location.replace('login.html');return;}
+    var parsed=JSON.parse(s);
+    if(!parsed||!parsed.access_token){window.location.replace('login.html');return;}
+    if(role&&role!=='admin'){window.location.replace('my-tasks.html');}
+  }catch(e){window.location.replace('login.html');}
+})();
+</script>
+<script>
 /* Sync auth guard — runs before page paints */
 (function(){
   var role=localStorage.getItem('jt_role');
