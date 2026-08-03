@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JobTrack — My Tasks</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;font-size:15px}
+header{background:#fff;border-bottom:1px solid #e0dfd8;padding:.85rem 1.5rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10;flex-wrap:wrap}
+.logo{font-size:19px;font-weight:700;letter-spacing:-.4px;white-space:nowrap}.logo span{color:#185FA5}
+.user-badge{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:14px;color:#6b6a65}
+.avatar{width:32px;height:32px;border-radius:50%;background:#E6F1FB;color:#0C447C;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.sign-out-btn{height:30px;padding:0 12px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;color:#1a1a18}
+.sign-out-btn:hover{background:#f0efe8}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#e0dfd8;display:inline-block;vertical-align:middle}
+main{padding:1.25rem 1.5rem;max-width:900px;margin:0 auto}
+
+/* KPI strip */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1.25rem}
+.kpi{background:#fff;border:1px solid #e0dfd8;border-radius:10px;padding:.8rem 1rem}
+.kpi-n{font-size:24px;font-weight:700;line-height:1;margin-bottom:3px}
+.kpi-l{font-size:11px;color:#6b6a65;text-transform:uppercase;letter-spacing:.4px}
+.blue{color:#185FA5}.amber{color:#854F0B}.red{color:#A32D2D}.green{color:#27500A}
+
+/* Filter bar */
+.filter-bar{display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap}
+.filter-bar select,.filter-bar input{font-size:13px;height:34px;padding:0 10px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;color:#1a1a18;outline:none}
+.filter-bar input{min-width:180px;flex:1}
+.filter-bar select:focus,.filter-bar input:focus{border-color:#185FA5}
+
+/* Section title */
+.sec{font-size:12px;font-weight:600;color:#6b6a65;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem;margin-top:1.25rem}
+
+/* Task cards */
+.task-card{background:#fff;border:1px solid #e0dfd8;border-radius:10px;padding:1rem 1.1rem;margin-bottom:10px;display:grid;grid-template-columns:22px 1fr auto;gap:0 12px;align-items:start;transition:border-color .15s,box-shadow .15s}
+.task-card:hover{border-color:#c0bfb8;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.task-card.done-card{opacity:.6}
+.task-cb{width:18px;height:18px;border-radius:5px;border:2px solid #c8c7c0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s}
+.task-cb.checked{background:#185FA5;border-color:#185FA5}
+.task-cb.checked::after{content:'✓';color:#fff;font-size:11px;font-weight:700}
+.task-body{min-width:0}
+.task-name{font-size:15px;font-weight:600;margin-bottom:5px;line-height:1.3}
+.task-name.done-text{text-decoration:line-through;color:#aaa;font-weight:400}
+.task-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:#6b6a65;margin-bottom:6px}
+.task-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.task-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;white-space:nowrap}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;white-space:nowrap}
+.t-todo{background:#F1EFE8;color:#444441}.t-inprog{background:#E6F1FB;color:#0C447C}
+.t-done{background:#EAF3DE;color:#27500A}.t-blocked{background:#FCEBEB;color:#791F1F}
+.b-active{background:#E6F1FB;color:#0C447C}.b-review{background:#FAEEDA;color:#633806}
+.b-complete{background:#EAF3DE;color:#27500A}.b-onhold{background:#F1EFE8;color:#444441}.b-cancelled{background:#FCEBEB;color:#791F1F}
+.due-ok{background:#f5f5f2;color:#6b6a65}.due-soon{background:#FAEEDA;color:#633806}.due-over{background:#FCEBEB;color:#A32D2D}
+.start-ok{background:#EAF3DE;color:#27500A}.start-soon{background:#FAEEDA;color:#633806}.start-late{background:#FCEBEB;color:#A32D2D}
+.p-high{background:#FAEEDA;color:#633806}.p-urgent{background:#FCEBEB;color:#791F1F}.p-low{background:#F1EFE8;color:#444441}
+
+/* Status update select */
+.status-sel{font-size:12px;height:26px;padding:0 6px;border:1px solid #c8c7c0;border-radius:5px;background:#fff;color:#1a1a18;outline:none;cursor:pointer}
+.status-sel:focus{border-color:#185FA5}
+
+/* Notes */
+.task-notes{font-size:12px;color:#6b6a65;background:#f5f5f2;border-radius:5px;padding:5px 8px;margin-top:4px;font-style:italic}
+
+/* Project header */
+.proj-header{display:flex;align-items:center;gap:10px;margin-bottom:.5rem}
+.proj-no{font-size:13px;font-weight:700;color:#1a1a18}
+.proj-client{font-size:13px;color:#6b6a65}
+
+.empty{text-align:center;padding:3rem;color:#6b6a65}
+.empty strong{display:block;font-size:16px;color:#1a1a18;margin-bottom:.4rem}
+.loading{text-align:center;padding:3rem;color:#6b6a65;font-size:14px}
+
+/* Modal for status */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:1.75rem;width:420px;max-width:100%;border:1px solid #e0dfd8}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.modal-hdr h2{font-size:17px;font-weight:600}
+.close-btn{background:none;border:none;cursor:pointer;font-size:20px;color:#6b6a65;padding:2px 6px;border-radius:4px}
+.close-btn:hover{background:#f0efe8}
+.field{margin-bottom:14px}.field label{display:block;font-size:13px;color:#6b6a65;margin-bottom:5px;font-weight:500}
+.field select,.field textarea{width:100%;padding:8px 11px;border:1px solid #c8c7c0;border-radius:7px;font-size:14px;background:#fff;color:#1a1a18;outline:none;font-family:inherit}
+.field select:focus,.field textarea:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,.12)}
+.field textarea{height:80px;resize:vertical;line-height:1.5}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;padding-top:1rem;border-top:1px solid #e0dfd8}
+.btn{height:34px;padding:0 14px;border-radius:6px;border:1px solid #c8c7c0;background:#fff;color:#1a1a18;font-size:14px;cursor:pointer}
+.btn:hover{background:#f0efe8}.btn.primary{background:#185FA5;color:#fff;border-color:#185FA5;font-weight:500}.btn.primary:hover{background:#0C447C}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Job<span>Track</span></div>
+  <span class="sync-dot" id="sync-dot" title="Live sync"></span>
+  <div class="user-badge">
+    <div class="avatar" id="user-avatar">?</div>
+    <span id="user-name">Loading…</span>
+    <button class="sign-out-btn" onclick="signOut()">Sign out</button>
+  </div>
+</header>
+
+<main>
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <div class="filter-bar">
+    <input type="text" id="search" placeholder="Search tasks…">
+    <select id="f-status">
+      <option value="">All statuses</option>
+      <option value="To do">To do</option>
+      <option value="In progress">In progress</option>
+      <option value="Blocked">Blocked</option>
+      <option value="Done">Done</option>
+    </select>
+  </div>
+
+  <div id="task-list"><div class="loading">Loading your tasks…</div></div>
+</main>
+
+<!-- Status update modal -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target.id==='modal-bg')closeModal()">
+  <div class="modal">
+    <div class="modal-hdr"><h2 id="modal-task-name" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Update task</h2><button class="close-btn" onclick="closeModal()">✕</button></div>
+    <div class="field"><label>Status</label>
+      <select id="m-status"><option>To do</option><option>In progress</option><option>Done</option><option>Blocked</option></select>
+    </div>
+    <div class="field"><label>Notes (optional)</label>
+      <textarea id="m-notes" placeholder="Add a note or comment…"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="saveUpdate()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="db.js"></script>
+<script>
+const TC={'To do':'t-todo','In progress':'t-inprog','Done':'t-done','Blocked':'t-blocked'};
+const SC={Active:'b-active','In review':'b-review',Complete:'b-complete','On hold':'b-onhold',Cancelled:'b-cancelled'};
+const PL={high:'p-high',urgent:'p-urgent',low:'p-low',normal:''};
+
+let myTasks=[], myJobs=[], myUser=null, myProfile=null;
+let editTaskId=null;
+
+const dot=document.getElementById('sync-dot');
+function setSyncDot(s){dot.style.background=s==='on'?'#1baf7a':s==='err'?'#A32D2D':'#e0dfd8';}
+
+// ── Auth gate ──────────────────────────────────────────────────────────────
+async function init(){
+  const {data:{session}}=await db.auth.getSession();
+  if(!session){window.location.href='login.html';return;}
+  myUser=session.user;
+
+  // Load profile
+  const {data:profile,error}=await db.from('jt_user_profiles').select('*').eq('id',myUser.id).single();
+  if(error||!profile){window.location.href='login.html';return;}
+  myProfile=profile;
+
+  // Admins go to the full app
+  if(profile.role==='admin'){window.location.href='index.html';return;}
+
+  // Set header
+  const name=profile.drafter_name||myUser.email;
+  document.getElementById('user-name').textContent=name;
+  document.getElementById('user-avatar').textContent=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.title=`JobTrack — ${name}'s Tasks`;
+
+  await loadTasks();
+  setupRealtime();
+}
+
+async function loadTasks(){
+  try{
+    // Tasks assigned to me (RLS enforces this — only my tasks come back)
+    const {data:t,error:te}=await db.from('jt_tasks').select('*').order('due',{nullsFirst:false}).order('created_at');
+    if(te)throw te;
+    myTasks=t||[];
+
+    // Jobs for those tasks
+    const jobIds=[...new Set(myTasks.map(t=>t.job_id).filter(Boolean))];
+    if(jobIds.length){
+      const {data:j,error:je}=await db.from('jt_jobs').select('id,job_no,client,status,drafter').in('id',jobIds);
+      if(je)throw je;
+      myJobs=j||[];
+    } else {myJobs=[];}
+
+    setSyncDot('on');
+    render();
+  }catch(e){setSyncDot('err');console.error(e);}
+}
+
+function setupRealtime(){
+  db.channel('my-tasks-rt')
+    .on('postgres_changes',{event:'*',schema:'public',table:'jt_tasks'},()=>loadTasks())
+    .subscribe(s=>setSyncDot(s==='SUBSCRIBED'?'on':'off'));
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function daysDiff(d){if(!d)return null;const t=new Date(d+'T00:00:00'),n=new Date();n.setHours(0,0,0,0);return Math.round((t-n)/86400000);}
+function fmtDate(d){if(!d)return'—';const[y,m,day]=d.split('-');return`${m}/${day}/${y}`;}
+function dueCls(d,s){if(s==='Done')return'due-ok';const n=daysDiff(d);if(n===null)return'due-ok';return n<0?'due-over':n<=7?'due-soon':'due-ok';}
+
+function calcStartDate(dueStr,hrs,hpd){
+  if(!dueStr||!hrs||hrs<=0)return null;
+  hpd=hpd||8;let left=hrs;
+  let d=new Date(dueStr+'T00:00:00');
+  while(left>0){if(d.getDay()!==0&&d.getDay()!==6)left-=hpd;if(left>0)d.setDate(d.getDate()-1);}
+  while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);
+  return d.toISOString().slice(0,10);
+}
+
+function startChip(t,hpd){
+  const hrs=parseFloat(t.hours_custom)||parseFloat(t.hours)||0;
+  if(!t.due||!hrs||t.status==='Done')return'';
+  const s=calcStartDate(t.due,hrs,hpd);if(!s)return'';
+  const n=daysDiff(s);
+  let cls,str;
+  if(n<0){cls='start-late';str=`Start by ${fmtDate(s)} — ${Math.abs(n)}d late!`;}
+  else if(n===0){cls='start-soon';str='Start TODAY';}
+  else if(n<=3){cls='start-soon';str=`Start by ${fmtDate(s)} (${n}d)`;}
+  else{cls='start-ok';str=`Start by ${fmtDate(s)}`;}
+  return`<span class="chip ${cls}">⏱ ${str}</span>`;
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function render(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const fs=document.getElementById('f-status').value;
+
+  const filtered=myTasks.filter(t=>{
+    if(fs&&t.status!==fs)return false;
+    if(q&&![t.name,t.description,t.notes].join(' ').toLowerCase().includes(q))return false;
+    return true;
+  });
+
+  // KPI
+  const open=myTasks.filter(t=>t.status!=='Done').length;
+  const inprog=myTasks.filter(t=>t.status==='In progress').length;
+  const blocked=myTasks.filter(t=>t.status==='Blocked').length;
+  const overdue=myTasks.filter(t=>t.status!=='Done'&&t.due&&daysDiff(t.due)<0).length;
+  const done=myTasks.filter(t=>t.status==='Done').length;
+  document.getElementById('kpi-row').innerHTML=`
+    <div class="kpi"><div class="kpi-n">${myTasks.length}</div><div class="kpi-l">Total tasks</div></div>
+    <div class="kpi"><div class="kpi-n blue">${open}</div><div class="kpi-l">Open</div></div>
+    <div class="kpi"><div class="kpi-n blue">${inprog}</div><div class="kpi-l">In progress</div></div>
+    <div class="kpi"><div class="kpi-n red">${blocked}</div><div class="kpi-l">Blocked</div></div>
+    <div class="kpi"><div class="kpi-n amber">${overdue}</div><div class="kpi-l">Overdue</div></div>
+    <div class="kpi"><div class="kpi-n green">${done}</div><div class="kpi-l">Done</div></div>
+  `;
+
+  if(!filtered.length){
+    document.getElementById('task-list').innerHTML=`<div class="empty"><strong>${myTasks.length?'No matches':'No tasks assigned to you yet'}</strong>${myTasks.length?'Try changing the filters.':'Your manager will assign tasks that appear here.'}</div>`;
+    return;
+  }
+
+  // Sort: blocked → in progress → to do → done; then by due date
+  const ord={'Blocked':0,'In progress':1,'To do':2,'Done':3};
+  const sorted=filtered.slice().sort((a,b)=>{
+    if((ord[a.status]??9)!==(ord[b.status]??9))return(ord[a.status]??9)-(ord[b.status]??9);
+    return(a.due||'z').localeCompare(b.due||'z');
+  });
+
+  const hpd=8; // Could load from settings
+  document.getElementById('task-list').innerHTML=sorted.map(t=>{
+    const job=myJobs.find(j=>j.id===t.job_id)||{};
+    const isDone=t.status==='Done';
+    const n=daysDiff(t.due);
+    const dc=dueCls(t.due,t.status);
+    const dueStr=!t.due?'':isDone?fmtDate(t.due):n<0?`${fmtDate(t.due)} — ${Math.abs(n)}d overdue`:n===0?`${fmtDate(t.due)} — today`:n<=7?`${fmtDate(t.due)} — ${n}d`:fmtDate(t.due);
+    const hrs=parseFloat(t.hours_custom)||parseFloat(t.hours)||0;
+    const sc=startChip(t,hpd);
+    const pri=t.priority&&t.priority!=='normal'?`<span class="chip ${PL[t.priority]||''}">${t.priority}</span>`:'';
+
+    return`<div class="task-card ${isDone?'done-card':''}">
+      <div class="task-cb ${isDone?'checked':''}" onclick="toggleDone('${t.id}','${t.status}')"></div>
+      <div class="task-body">
+        <div class="task-name ${isDone?'done-text':''}">${t.name}</div>
+        <div class="task-meta">
+          ${job.job_no?`<span><strong>${job.job_no}</strong> — ${job.client||''}</span>`:''}
+          ${job.status?`<span class="badge ${SC[job.status]||''}">${job.status}</span>`:''}
+        </div>
+        <div class="task-chips">
+          <span class="badge ${TC[t.status]||''}">${t.status}</span>
+          ${pri}
+          ${dueStr?`<span class="chip ${dc}">📅 ${dueStr}</span>`:''}
+          ${sc}
+          ${hrs>0?`<span class="chip due-ok">🕐 ${hrs}h needed</span>`:''}
+        </div>
+        ${t.notes?`<div class="task-notes">${t.notes}</div>`:''}
+        ${t.description?`<div style="font-size:13px;color:#6b6a65;margin-top:5px">${t.description}</div>`:''}
+      </div>
+      <div class="task-actions">
+        <button class="btn" style="font-size:12px;height:28px;padding:0 10px" onclick="openUpdateModal('${t.id}')">Update</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Actions ────────────────────────────────────────────────────────────────
+async function toggleDone(id,currentStatus){
+  const newStatus=currentStatus==='Done'?'To do':'Done';
+  const {error}=await db.from('jt_tasks').update({status:newStatus,updated_at:new Date().toISOString()}).eq('id',id);
+  if(error){toast('Could not update: '+error.message,'error');}
+  else{toast(newStatus==='Done'?'Task marked done ✓':'Task reopened','ok');}
+}
+
+function openUpdateModal(id){
+  editTaskId=id;
+  const t=myTasks.find(x=>x.id===id)||{};
+  document.getElementById('modal-task-name').textContent=t.name||'Update task';
+  document.getElementById('m-status').value=t.status||'To do';
+  document.getElementById('m-notes').value='';
+  document.getElementById('modal-bg').classList.add('open');
+  setTimeout(()=>document.getElementById('m-notes').focus(),50);
+}
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');editTaskId=null;}
+
+async function saveUpdate(){
+  if(!editTaskId)return;
+  const status=document.getElementById('m-status').value;
+  const notes=document.getElementById('m-notes').value.trim();
+  const t=myTasks.find(x=>x.id===editTaskId)||{};
+  const existingNotes=t.notes||'';
+  const combined=notes
+    ? (existingNotes?existingNotes+'\n—\n':'')+`[${new Date().toLocaleDateString()}] ${notes}`
+    : existingNotes;
+  const {error}=await db.from('jt_tasks').update({
+    status,notes:combined,updated_at:new Date().toISOString()
+  }).eq('id',editTaskId);
+  if(error){toast('Update failed: '+error.message,'error');}
+  else{toast('Task updated','ok');closeModal();}
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+['search','f-status'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',render);el.addEventListener('change',render);}});
+
+async function signOut(){
+  await db.auth.signOut();
+  window.location.href='login.html';
+}
+
+init();
+</script>
+</body>
+</html>

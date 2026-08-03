@@ -134,6 +134,29 @@ tbody tr:last-child td{border-bottom:none} tbody tr:hover td{background:#fafaf8}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="db.js"></script>
 <script>
+// ── Auth guard — admin only ────────────────────────────────────────────────
+(async function(){
+  const {data:{session}}=await db.auth.getSession();
+  if(!session){window.location.href='login.html';return;}
+  const {data:profile}=await db.from('jt_user_profiles').select('role,drafter_name').eq('id',session.user.id).single();
+  if(!profile||profile.role!=='admin'){
+    // Drafters go to their own task view
+    window.location.href='my-tasks.html';
+    return;
+  }
+  // Show sign-out in header
+  const hdr=document.querySelector('header');
+  if(hdr){
+    const sb=document.createElement('button');
+    sb.textContent='Sign out';
+    sb.style.cssText='margin-left:auto;height:30px;padding:0 12px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;color:#1a1a18;white-space:nowrap';
+    sb.onmouseenter=()=>sb.style.background='#f0efe8';
+    sb.onmouseleave=()=>sb.style.background='#fff';
+    sb.onclick=async()=>{await db.auth.signOut();window.location.href='login.html';};
+    hdr.appendChild(sb);
+  }
+})();
+
 const SC={Active:'b-active','In review':'b-review',Complete:'b-complete','On hold':'b-onhold',Cancelled:'b-cancelled'};
 const PI={high:'🔴',urgent:'🚨',low:'⬇️',normal:''};
 let jobs=[],drafters=[],tasks=[];

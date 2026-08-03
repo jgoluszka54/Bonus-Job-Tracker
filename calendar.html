@@ -1,96 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JobTrack — Calendar</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;font-size:15px}
-header{background:#fff;border-bottom:1px solid #e0dfd8;padding:0.85rem 1.5rem;display:flex;align-items:center;gap:1.5rem;position:sticky;top:0;z-index:10;flex-wrap:wrap}
-.logo{font-size:19px;font-weight:700;letter-spacing:-0.4px;white-space:nowrap;margin-right:0.5rem}
-.logo span{color:#185FA5}
+header{background:#fff;border-bottom:1px solid #e0dfd8;padding:.85rem 1.5rem;display:flex;align-items:center;gap:1.5rem;position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.logo{font-size:19px;font-weight:700;letter-spacing:-.4px;white-space:nowrap;margin-right:.5rem}.logo span{color:#185FA5}
 nav{display:flex;gap:2px;flex:1;flex-wrap:wrap}
-.nav-a{padding:6px 14px;border-radius:6px;font-size:14px;text-decoration:none;color:#6b6a65;font-weight:500;transition:all 0.1s;white-space:nowrap}
-.nav-a:hover{background:#f0efe8;color:#1a1a18}
-.nav-a.active{background:#E6F1FB;color:#0C447C}
-main{padding:1.25rem 1.5rem;max-width:1400px}
+.nav-a{padding:6px 14px;border-radius:6px;font-size:14px;text-decoration:none;color:#6b6a65;font-weight:500;white-space:nowrap}
+.nav-a:hover{background:#f0efe8;color:#1a1a18}.nav-a.active{background:#E6F1FB;color:#0C447C}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#e0dfd8;display:inline-block;vertical-align:middle}
+main{padding:1.25rem 1.5rem;max-width:100%}
 
-/* Calendar nav */
-.cal-nav{display:flex;align-items:center;gap:12px;margin-bottom:1.25rem;flex-wrap:wrap}
-.cal-nav h2{font-size:20px;font-weight:600;flex:1;min-width:160px}
-.btn{height:34px;padding:0 13px;border-radius:6px;border:1px solid #c8c7c0;background:#fff;color:#1a1a18;font-size:14px;cursor:pointer;white-space:nowrap;transition:background 0.12s}
-.btn:hover{background:#f0efe8}
-.btn.primary{background:#185FA5;color:#fff;border-color:#185FA5}
-.btn.primary:hover{background:#0C447C}
-.btn.active-view{background:#E6F1FB;color:#0C447C;border-color:#B5D4F4}
+/* ── Toolbar ── */
+.cal-nav{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.cal-nav h2{font-size:20px;font-weight:600;flex:1;min-width:140px}
+.btn{height:34px;padding:0 13px;border-radius:6px;border:1px solid #c8c7c0;background:#fff;color:#1a1a18;font-size:14px;cursor:pointer;white-space:nowrap;transition:background .12s}
+.btn:hover{background:#f0efe8}.btn.primary{background:#185FA5;color:#fff;border-color:#185FA5}.btn.primary:hover{background:#0C447C}
+.btn.active-view{background:#E6F1FB;color:#0C447C;border-color:#B5D4F4;font-weight:500}
 select.filter{font-size:13px;height:34px;padding:0 9px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;color:#1a1a18;outline:none}
 select.filter:focus{border-color:#185FA5}
 
-/* Legend */
-.legend{display:flex;gap:16px;margin-bottom:1rem;flex-wrap:wrap;font-size:12px;color:#6b6a65;align-items:center}
+/* ── Legend ── */
+.legend{display:flex;gap:14px;margin-bottom:1rem;flex-wrap:wrap;font-size:12px;color:#6b6a65;align-items:center}
 .legend-item{display:flex;align-items:center;gap:5px}
 .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 
-/* Month grid */
+/* ── Month grid ── */
 .cal-grid{background:#fff;border:1px solid #e0dfd8;border-radius:12px;overflow:hidden}
 .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);background:#f5f5f2;border-bottom:1px solid #e0dfd8}
-.cal-weekday{padding:8px;text-align:center;font-size:12px;font-weight:500;color:#6b6a65;text-transform:uppercase;letter-spacing:0.4px}
+.cal-weekday{padding:8px;text-align:center;font-size:12px;font-weight:500;color:#6b6a65;text-transform:uppercase;letter-spacing:.4px}
 .cal-days{display:grid;grid-template-columns:repeat(7,1fr)}
-.cal-cell{min-height:110px;border-right:1px solid #f0efe8;border-bottom:1px solid #f0efe8;padding:6px;vertical-align:top;position:relative}
+.cal-cell{min-height:100px;border-right:1px solid #f0efe8;border-bottom:1px solid #f0efe8;padding:5px;position:relative}
 .cal-cell:nth-child(7n){border-right:none}
 .cal-cell.other-month{background:#fafaf8}
 .cal-cell.today{background:#EBF4FF}
-.cal-cell.today .day-num{background:#185FA5;color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
-.day-num{font-size:13px;font-weight:500;color:#6b6a65;margin-bottom:4px;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
-.cal-cell.today .day-num{color:#fff}
+.cal-cell.today .day-num{background:#185FA5;color:#fff;border-radius:50%}
+.day-num{font-size:12px;font-weight:500;color:#6b6a65;margin-bottom:3px;width:22px;height:22px;display:flex;align-items:center;justify-content:center}
 .other-month .day-num{color:#c8c7c0}
+.cal-event{font-size:10px;padding:2px 5px;border-radius:3px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.cal-event:hover{opacity:.8}
+.ev-design{background:#EEEDFE;color:#3C3489}.ev-draft{background:#E6F1FB;color:#0C447C}
+.ev-issue{background:#EAF3DE;color:#27500A}.ev-task{background:#FAEEDA;color:#633806}.ev-over{background:#FCEBEB;color:#791F1F}
+.more-events{font-size:10px;color:#6b6a65;cursor:pointer;padding:1px 4px}.more-events:hover{color:#185FA5}
 
-/* Events */
-.cal-event{font-size:11px;padding:2px 5px;border-radius:3px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;transition:opacity 0.1s}
-.cal-event:hover{opacity:0.8}
-.ev-design{background:#EEEDFE;color:#3C3489}
-.ev-draft{background:#E6F1FB;color:#0C447C}
-.ev-issue{background:#EAF3DE;color:#27500A}
-.ev-task{background:#FAEEDA;color:#633806}
-.ev-over{background:#FCEBEB;color:#791F1F}
-.more-events{font-size:11px;color:#6b6a65;cursor:pointer;padding:1px 5px}
-.more-events:hover{color:#185FA5}
-
-/* List view */
-.list-section{margin-bottom:1.5rem}
-.list-month-title{font-size:14px;font-weight:600;color:#6b6a65;margin-bottom:0.6rem;padding-bottom:0.4rem;border-bottom:1px solid #e0dfd8;text-transform:uppercase;letter-spacing:0.5px}
-.list-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #f5f5f2;font-size:14px}
+/* ── List view ── */
+.list-section{background:#fff;border:1px solid #e0dfd8;border-radius:10px;margin-bottom:1rem;overflow:hidden}
+.list-month-title{font-size:12px;font-weight:600;color:#6b6a65;padding:.6rem 1rem;border-bottom:1px solid #e0dfd8;text-transform:uppercase;letter-spacing:.5px;background:#f5f5f2}
+.list-row{display:flex;align-items:center;gap:12px;padding:8px 1rem;border-bottom:1px solid #f5f5f2;font-size:13px}
 .list-row:last-child{border-bottom:none}
-.list-date{width:70px;font-size:13px;font-weight:500;color:#1a1a18;flex-shrink:0}
-.list-date.over{color:#A32D2D}
-.list-date.soon{color:#854F0B}
+.list-date{width:64px;font-size:12px;font-weight:500;color:#1a1a18;flex-shrink:0}
+.list-date.over{color:#A32D2D}.list-date.soon{color:#854F0B}
 .list-type-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .list-info{flex:1;min-width:0}
 .list-label{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.list-sub{font-size:12px;color:#6b6a65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.badge{display:inline-block;font-size:11px;padding:1px 6px;border-radius:3px;font-weight:500;white-space:nowrap}
-.b-active{background:#E6F1FB;color:#0C447C}
-.b-review{background:#FAEEDA;color:#633806}
-.b-complete{background:#EAF3DE;color:#27500A}
-.b-onhold{background:#F1EFE8;color:#444441}
-.b-cancelled{background:#FCEBEB;color:#791F1F}
-.t-todo{background:#F1EFE8;color:#444441}
-.t-inprog{background:#E6F1FB;color:#0C447C}
-.t-done{background:#EAF3DE;color:#27500A}
-.t-blocked{background:#FCEBEB;color:#791F1F}
+.list-sub{font-size:11px;color:#6b6a65}
 
-/* Day detail popover */
-.day-popover{display:none;position:fixed;background:#fff;border:1px solid #e0dfd8;border-radius:10px;padding:1rem;min-width:260px;max-width:320px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,0.12)}
+/* ── Gantt ── */
+.gantt-wrap{background:#fff;border:1px solid #e0dfd8;border-radius:12px;overflow:hidden}
+.gantt-container{display:flex;overflow-x:auto;position:relative}
+.gantt-labels{flex-shrink:0;width:220px;border-right:1px solid #e0dfd8;background:#fff;position:sticky;left:0;z-index:5}
+.gantt-label-header{height:52px;border-bottom:1px solid #e0dfd8;display:flex;align-items:center;padding:0 12px;background:#f5f5f2}
+.gantt-label-header span{font-size:12px;font-weight:600;color:#6b6a65;text-transform:uppercase;letter-spacing:.4px}
+.gantt-label-row{display:flex;align-items:center;padding:0 12px;border-bottom:1px solid #f5f5f2;cursor:default;transition:background .1s}
+.gantt-label-row:hover{background:#fafaf8}
+.gantt-label-row.job-row{height:40px}
+.gantt-label-row.task-row-label{height:28px;padding-left:22px}
+.gantt-label-row.task-row-label .glabel{font-size:12px;color:#6b6a65}
+.glabel{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.gjob-no{font-size:11px;color:#6b6a65;margin-right:6px;flex-shrink:0}
+.gantt-chart{flex:1;min-width:0;position:relative}
+.gantt-header{height:52px;border-bottom:1px solid #e0dfd8;background:#f5f5f2;display:flex;position:sticky;top:0;z-index:4}
+.gantt-month-hdr{border-right:1px solid #e0dfd8;display:flex;flex-direction:column;justify-content:center;padding:0 8px;flex-shrink:0}
+.gantt-month-hdr span:first-child{font-size:12px;font-weight:600;color:#1a1a18}
+.gantt-month-hdr span:last-child{font-size:10px;color:#6b6a65}
+.gantt-rows{position:relative}
+.gantt-row{position:relative;border-bottom:1px solid #f5f5f2}
+.gantt-row.job-row{height:40px}
+.gantt-row.task-row{height:28px;background:#fafaf8}
+.gantt-row:hover{background:#f5f5f0}
+.gantt-grid-line{position:absolute;top:0;bottom:0;width:1px;background:#f0efe8;pointer-events:none}
+.gantt-today-line{position:absolute;top:0;bottom:0;width:2px;background:#185FA5;opacity:.4;pointer-events:none;z-index:3}
+.gantt-bar{position:absolute;top:50%;transform:translateY(-50%);border-radius:4px;cursor:pointer;transition:opacity .15s;display:flex;align-items:center;padding:0 6px;overflow:hidden;white-space:nowrap;font-size:11px;font-weight:500}
+.gantt-bar:hover{opacity:.85;filter:brightness(1.05)}
+.gb-design{background:#7F77DD;color:#fff}
+.gb-draft{background:#378ADD;color:#fff}
+.gb-issue{background:#639922;color:#fff}
+.gb-task{background:#E8A030;color:#fff}
+.gb-task-done{background:#b0b0a8;color:#fff}
+.gb-task-blocked{background:#D94040;color:#fff}
+.gb-milestone{width:12px!important;height:12px!important;border-radius:2px;transform:translateY(-50%) rotate(45deg);padding:0}
+.gantt-empty{text-align:center;padding:3rem;color:#6b6a65;font-size:14px}
+.gantt-zoom{display:flex;gap:6px;align-items:center}
+.gantt-zoom span{font-size:12px;color:#6b6a65}
+
+/* ── Badges ── */
+.badge{display:inline-block;font-size:11px;padding:1px 6px;border-radius:3px;font-weight:500;white-space:nowrap}
+.b-active{background:#E6F1FB;color:#0C447C}.b-review{background:#FAEEDA;color:#633806}
+.b-complete{background:#EAF3DE;color:#27500A}.b-onhold{background:#F1EFE8;color:#444441}.b-cancelled{background:#FCEBEB;color:#791F1F}
+.t-todo{background:#F1EFE8;color:#444441}.t-inprog{background:#E6F1FB;color:#0C447C}
+.t-done{background:#EAF3DE;color:#27500A}.t-blocked{background:#FCEBEB;color:#791F1F}
+
+/* ── Tooltip ── */
+.g-tooltip{position:fixed;background:#1a1a18;color:#fff;font-size:12px;padding:7px 10px;border-radius:6px;pointer-events:none;z-index:999;max-width:220px;line-height:1.5;display:none}
+
+/* ── Popover ── */
+.day-popover{display:none;position:fixed;background:#fff;border:1px solid #e0dfd8;border-radius:10px;padding:1rem;min-width:260px;max-width:320px;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.12)}
 .day-popover.open{display:block}
-.pop-title{font-weight:600;font-size:15px;margin-bottom:0.75rem;display:flex;justify-content:space-between;align-items:center}
+.pop-title{font-weight:600;font-size:15px;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center}
 .pop-close{background:none;border:none;cursor:pointer;font-size:18px;color:#6b6a65;line-height:1}
 .pop-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f5f5f2;font-size:13px}
 .pop-item:last-child{border-bottom:none}
 .pop-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
-.pop-info{flex:1;min-width:0}
-.pop-label{font-weight:500}
-.pop-sub{font-size:12px;color:#6b6a65}
+.pop-info{flex:1;min-width:0}.pop-label{font-weight:500}.pop-sub{font-size:12px;color:#6b6a65}
 .empty{text-align:center;padding:3rem;color:#6b6a65}
 </style>
 </head>
@@ -103,39 +127,54 @@ select.filter:focus{border-color:#185FA5}
     <a href="calendar.html" class="nav-a active">Calendar</a>
     <a href="dashboard.html" class="nav-a">Dashboard</a>
   </nav>
+  <span class="sync-dot" id="sync-dot" title="Live sync"></span>
 </header>
 
 <main>
   <div class="cal-nav">
-    <button class="btn" onclick="prevMonth()">&#8592;</button>
+    <button class="btn" id="btn-prev" onclick="navPrev()">&#8592;</button>
     <h2 id="cal-title"></h2>
-    <button class="btn" onclick="nextMonth()">&#8594;</button>
-    <button class="btn primary" onclick="goToday()">Today</button>
+    <button class="btn" id="btn-next" onclick="navNext()">&#8594;</button>
+    <button class="btn primary" onclick="navToday()">Today</button>
     <button class="btn" id="btn-month" onclick="setView('month')">Month</button>
-    <button class="btn" id="btn-list" onclick="setView('list')">List</button>
+    <button class="btn" id="btn-gantt" onclick="setView('gantt')">Gantt</button>
+    <button class="btn" id="btn-list"  onclick="setView('list')">List</button>
     <select class="filter" id="f-drafter"><option value="">All drafters</option></select>
-    <select class="filter" id="f-type">
+    <select class="filter" id="f-type" id="f-type">
       <option value="">All types</option>
       <option value="design">Design due</option>
       <option value="draft">Draft due</option>
       <option value="issue">Issue date</option>
       <option value="task">Tasks</option>
     </select>
+    <!-- Gantt zoom (shown only in gantt view) -->
+    <div class="gantt-zoom" id="gantt-zoom" style="display:none">
+      <span>Zoom:</span>
+      <button class="btn" onclick="setZoom(14)">2w</button>
+      <button class="btn" onclick="setZoom(30)">1m</button>
+      <button class="btn" onclick="setZoom(90)">3m</button>
+      <button class="btn" onclick="setZoom(180)">6m</button>
+    </div>
   </div>
 
-  <div class="legend">
+  <div class="legend" id="legend">
     <span style="font-weight:500;color:#1a1a18">Legend:</span>
-    <span class="legend-item"><span class="legend-dot" style="background:#7F77DD"></span>Design due</span>
-    <span class="legend-item"><span class="legend-dot" style="background:#378ADD"></span>Draft due</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#7F77DD"></span>Design phase</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#378ADD"></span>Draft phase</span>
     <span class="legend-item"><span class="legend-dot" style="background:#639922"></span>Issue date</span>
-    <span class="legend-item"><span class="legend-dot" style="background:#BA7517"></span>Task due</span>
-    <span class="legend-item"><span class="legend-dot" style="background:#E24B4A"></span>Overdue</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#E8A030"></span>Task</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#D94040"></span>Blocked</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#b0b0a8"></span>Done</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#185FA5;border-radius:50%"></span>Today</span>
   </div>
 
-  <div id="cal-output"></div>
+  <div id="cal-output"><div class="empty">Connecting to database…</div></div>
 </main>
 
-<!-- Day detail popover -->
+<!-- Tooltip -->
+<div class="g-tooltip" id="g-tooltip"></div>
+
+<!-- Day popover -->
 <div class="day-popover" id="day-pop">
   <div class="pop-title"><span id="pop-date-title"></span><button class="pop-close" onclick="closePop()">✕</button></div>
   <div id="pop-items"></div>
@@ -144,129 +183,167 @@ select.filter:focus{border-color:#185FA5}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="db.js"></script>
 <script>
+// ── Auth guard — admin only ────────────────────────────────────────────────
+(async function(){
+  const {data:{session}}=await db.auth.getSession();
+  if(!session){window.location.href='login.html';return;}
+  const {data:profile}=await db.from('jt_user_profiles').select('role,drafter_name').eq('id',session.user.id).single();
+  if(!profile||profile.role!=='admin'){
+    // Drafters go to their own task view
+    window.location.href='my-tasks.html';
+    return;
+  }
+  // Show sign-out in header
+  const hdr=document.querySelector('header');
+  if(hdr){
+    const sb=document.createElement('button');
+    sb.textContent='Sign out';
+    sb.style.cssText='margin-left:auto;height:30px;padding:0 12px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;color:#1a1a18;white-space:nowrap';
+    sb.onmouseenter=()=>sb.style.background='#f0efe8';
+    sb.onmouseleave=()=>sb.style.background='#fff';
+    sb.onclick=async()=>{await db.auth.signOut();window.location.href='login.html';};
+    hdr.appendChild(sb);
+  }
+})();
+
 const SC={Active:'b-active','In review':'b-review',Complete:'b-complete','On hold':'b-onhold',Cancelled:'b-cancelled'};
-const TC={'To do':'t-todo','In progress':'t-inprog','Done':'t-done','Blocked':'t-blocked'};
-
-let jobs=JSON.parse(localStorage.getItem('jt_jobs')||'[]');
-let drafters=JSON.parse(localStorage.getItem('jt_drafters')||'[]');
-let tasks=JSON.parse(localStorage.getItem('jt_tasks')||'[]');
-
-let viewMode='month';
-let curYear=new Date().getFullYear();
-let curMonth=new Date().getMonth(); // 0-based
-
+const TC={'To do':'t-todo','In progress':'t-inprog',Done:'t-done',Blocked:'t-blocked'};
+const EV_CLS={design:'ev-design',draft:'ev-draft',issue:'ev-issue',task:'ev-task'};
+const EV_DOT={design:'#7F77DD',draft:'#378ADD',issue:'#639922',task:'#BA7517'};
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const WDAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-// Populate drafter filter
+let jobs=[], drafters=[], tasks=[];
+let viewMode='month';
+let curYear=new Date().getFullYear();
+let curMonth=new Date().getMonth();
+let ganttDays=90; // default 3-month gantt window
+let ganttStart=null; // Date object — start of gantt range
+
+const dot=document.getElementById('sync-dot');
+function setSyncDot(s){dot.style.background=s==='on'?'#1baf7a':s==='err'?'#A32D2D':'#e0dfd8';}
+
+// ── Supabase ───────────────────────────────────────────────────────────────
+async function loadAll(){
+  try{
+    const [j,d,t]=await Promise.all([
+      db.from('jt_jobs').select('*').order('job_no'),
+      db.from('jt_drafters').select('*').order('name'),
+      db.from('jt_tasks').select('*').order('due')
+    ]);
+    if(j.error)throw j.error;
+    if(d.error)throw d.error;
+    if(t.error)throw t.error;
+    jobs=j.data||[]; drafters=(d.data||[]).map(r=>r.name); tasks=t.data||[];
+    document.getElementById('f-drafter').innerHTML=
+      '<option value="">All drafters</option>'+drafters.map(n=>`<option>${n}</option>`).join('');
+    setSyncDot('on');
+    renderCal();
+  }catch(e){
+    setSyncDot('err');
+    console.error(e);
+    document.getElementById('cal-output').innerHTML='<div class="empty">Error loading data.</div>';
+  }
+}
+
+db.channel('cal-rt')
+  .on('postgres_changes',{event:'*',schema:'public',table:'jt_jobs'},()=>loadAll())
+  .on('postgres_changes',{event:'*',schema:'public',table:'jt_tasks'},()=>loadAll())
+  .on('postgres_changes',{event:'*',schema:'public',table:'jt_drafters'},()=>loadAll())
+  .subscribe(s=>setSyncDot(s==='SUBSCRIBED'?'on':'off'));
+
+// ── View switching ─────────────────────────────────────────────────────────
+function setView(v){
+  viewMode=v;
+  ['month','gantt','list'].forEach(n=>{
+    document.getElementById('btn-'+n).className='btn'+(v===n?' active-view':'');
+  });
+  document.getElementById('gantt-zoom').style.display=v==='gantt'?'flex':'none';
+  // legend: show gantt legend only for gantt, event legend for others
+  document.getElementById('legend').style.display=v==='list'?'none':'flex';
+  // prev/next: hide for gantt (gantt has its own date range)
+  document.getElementById('btn-prev').style.display=v==='gantt'?'none':'';
+  document.getElementById('btn-next').style.display=v==='gantt'?'none':'';
+  renderCal();
+}
+function setZoom(days){ganttDays=days;renderCal();}
+
+function navPrev(){if(viewMode==='month'){curMonth--;if(curMonth<0){curMonth=11;curYear--;}}renderCal();}
+function navNext(){if(viewMode==='month'){curMonth++;if(curMonth>11){curMonth=0;curYear++;}}renderCal();}
+function navToday(){const n=new Date();curYear=n.getFullYear();curMonth=n.getMonth();ganttStart=null;renderCal();}
+
 ['f-drafter','f-type'].forEach(id=>document.getElementById(id).addEventListener('change',renderCal));
 
-function prevMonth(){curMonth--;if(curMonth<0){curMonth=11;curYear--;}renderCal();}
-function nextMonth(){curMonth++;if(curMonth>11){curMonth=0;curYear++;}renderCal();}
-function goToday(){const n=new Date();curYear=n.getFullYear();curMonth=n.getMonth();renderCal();}
-function setView(v){viewMode=v;document.getElementById('btn-month').className='btn'+(v==='month'?' active-view':'');document.getElementById('btn-list').className='btn'+(v==='list'?' active-view':'');renderCal();}
+// ── Master render dispatcher ───────────────────────────────────────────────
+function renderCal(){
+  const fd=document.getElementById('f-drafter').value;
+  if(viewMode==='month'){
+    document.getElementById('cal-title').textContent=`${MONTHS[curMonth]} ${curYear}`;
+    renderMonth();
+  } else if(viewMode==='gantt'){
+    document.getElementById('cal-title').textContent='Gantt Chart';
+    renderGantt();
+  } else {
+    document.getElementById('cal-title').textContent='Upcoming dates';
+    renderList();
+  }
+}
 
-function getFilteredDrafter(){return document.getElementById('f-drafter').value;}
-function getFilteredType(){return document.getElementById('f-type').value;}
-
-// Build all calendar events from jobs and tasks
+// ── Build calendar events (month + list) ──────────────────────────────────
 function buildEvents(){
-  const fd=getFilteredDrafter();
-  const ft=getFilteredType();
+  const fd=document.getElementById('f-drafter').value;
+  const ft=document.getElementById('f-type').value;
   const today=new Date();today.setHours(0,0,0,0);
   const events=[];
-
   jobs.forEach(j=>{
     if(fd&&j.drafter!==fd)return;
     if(j.status==='Cancelled')return;
-    const isComplete=j.status==='Complete';
+    const done=j.status==='Complete';
     const label=`${j.job_no} — ${j.client}`;
     const sub=j.drafter||'Unassigned';
-
-    if((!ft||ft==='design')&&j.due_design){
-      const d=new Date(j.due_design+'T00:00:00');
-      const over=!isComplete&&d<today;
-      events.push({date:j.due_design,type:'design',over,label,sub,typeLabel:'Design due',job:j});
-    }
-    if((!ft||ft==='draft')&&j.due_draft){
-      const d=new Date(j.due_draft+'T00:00:00');
-      const over=!isComplete&&d<today;
-      events.push({date:j.due_draft,type:'draft',over,label,sub,typeLabel:'Draft due',job:j});
-    }
-    if((!ft||ft==='issue')&&j.due_issue){
-      const d=new Date(j.due_issue+'T00:00:00');
-      const over=!isComplete&&d<today;
-      events.push({date:j.due_issue,type:'issue',over,label,sub,typeLabel:'Issue date',job:j});
-    }
+    if((!ft||ft==='design')&&j.due_design)
+      events.push({date:j.due_design,type:'design',over:!done&&new Date(j.due_design+'T00:00:00')<today,label,sub,typeLabel:'Design due',job:j});
+    if((!ft||ft==='draft')&&j.due_draft)
+      events.push({date:j.due_draft,type:'draft',over:!done&&new Date(j.due_draft+'T00:00:00')<today,label,sub,typeLabel:'Draft due',job:j});
+    if((!ft||ft==='issue')&&j.due_issue)
+      events.push({date:j.due_issue,type:'issue',over:!done&&new Date(j.due_issue+'T00:00:00')<today,label,sub,typeLabel:'Issue date',job:j});
   });
-
   if(!ft||ft==='task'){
     tasks.forEach(t=>{
-      if(!t.due)return;
+      if(!t.due||t.status==='Done')return;
       const job=jobs.find(j=>j.id===t.job_id)||{};
-      if(fd&&job.drafter!==fd)return;
-      if(t.status==='Done')return;
-      const d=new Date(t.due+'T00:00:00');
-      const over=d<today;
-      events.push({date:t.due,type:'task',over,label:t.name,sub:`${job.jobNo||'?'} — ${job.client||''}`,typeLabel:'Task',task:t,job});
+      if(fd&&job.drafter!==fd&&t.assignee!==fd)return;
+      events.push({date:t.due,type:'task',over:new Date(t.due+'T00:00:00')<today,
+        label:t.name,sub:`${job.job_no||'?'} — ${job.client||''}`,typeLabel:'Task',task:t,job});
     });
   }
-
   return events;
 }
 
-const EV_CLS={design:'ev-design',draft:'ev-draft',issue:'ev-issue',task:'ev-task'};
-const EV_DOT={design:'#7F77DD',draft:'#378ADD',issue:'#639922',task:'#BA7517'};
-
-function renderCal(){
-  document.getElementById('cal-title').textContent=`${MONTHS[curMonth]} ${curYear}`;
-  document.getElementById('btn-month').className='btn'+(viewMode==='month'?' active-view':'');
-  document.getElementById('btn-list').className='btn'+(viewMode==='list'?' active-view':'');
-  if(viewMode==='month')renderMonth();else renderList();
-}
-
+// ── Month grid ─────────────────────────────────────────────────────────────
 function renderMonth(){
   const events=buildEvents();
-  // Build map: date-string -> events[]
   const evMap={};
   events.forEach(e=>{evMap[e.date]=(evMap[e.date]||[]).concat(e);});
-
   const firstDay=new Date(curYear,curMonth,1).getDay();
   const daysInMonth=new Date(curYear,curMonth+1,0).getDate();
   const prevDays=new Date(curYear,curMonth,0).getDate();
   const todayStr=new Date().toISOString().slice(0,10);
-
   let cells='';
-  // Leading blanks
-  for(let i=firstDay-1;i>=0;i--){
-    const d=prevDays-i;
-    const mo=curMonth===0?curYear-1:curYear;
-    const mn=curMonth===0?12:curMonth;
-    const ds=`${mo}-${String(mn).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    cells+=`<div class="cal-cell other-month"><div class="day-num">${d}</div></div>`;
-  }
-  // Current month days
+  for(let i=firstDay-1;i>=0;i--)
+    cells+=`<div class="cal-cell other-month"><div class="day-num">${prevDays-i}</div></div>`;
   for(let d=1;d<=daysInMonth;d++){
     const ds=`${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isToday=ds===todayStr;
     const dayEvs=evMap[ds]||[];
-    const SHOW=3;
-    const shown=dayEvs.slice(0,SHOW);
-    const extra=dayEvs.length-SHOW;
-    const evHtml=shown.map(e=>{
-      const cls=e.over?'cal-event ev-over':`cal-event ${EV_CLS[e.type]||'ev-task'}`;
-      return`<div class="${cls}" onclick="showPop('${ds}',event)" title="${e.label}">${e.label}</div>`;
-    }).join('');
+    const shown=dayEvs.slice(0,3);
+    const extra=dayEvs.length-3;
+    const evHtml=shown.map(e=>`<div class="cal-event ${e.over?'ev-over':EV_CLS[e.type]||'ev-task'}" onclick="showPop('${ds}',event)" title="${e.label}">${e.label}</div>`).join('');
     const moreHtml=extra>0?`<div class="more-events" onclick="showPop('${ds}',event)">+${extra} more</div>`:'';
     cells+=`<div class="cal-cell${isToday?' today':''}"><div class="day-num">${d}</div>${evHtml}${moreHtml}</div>`;
   }
-  // Trailing blanks
-  const total=firstDay+daysInMonth;
-  const trail=(7-total%7)%7;
-  for(let d=1;d<=trail;d++){
-    cells+=`<div class="cal-cell other-month"><div class="day-num">${d}</div></div>`;
-  }
-
+  const trail=(7-(firstDay+daysInMonth)%7)%7;
+  for(let d=1;d<=trail;d++)cells+=`<div class="cal-cell other-month"><div class="day-num">${d}</div></div>`;
   document.getElementById('cal-output').innerHTML=`
     <div class="cal-grid">
       <div class="cal-weekdays">${WDAYS.map(w=>`<div class="cal-weekday">${w}</div>`).join('')}</div>
@@ -274,36 +351,28 @@ function renderMonth(){
     </div>`;
 }
 
+// ── List view ──────────────────────────────────────────────────────────────
 function renderList(){
   const events=buildEvents();
   const today=new Date();today.setHours(0,0,0,0);
-  // Show current month + 3 months ahead + overdue
-  const cutoff=new Date(curYear,curMonth+4,0);
-
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()+120);
   const overdue=events.filter(e=>new Date(e.date+'T00:00:00')<today).sort((a,b)=>a.date.localeCompare(b.date));
   const upcoming=events.filter(e=>{const d=new Date(e.date+'T00:00:00');return d>=today&&d<=cutoff;}).sort((a,b)=>a.date.localeCompare(b.date));
-
   if(!overdue.length&&!upcoming.length){
-    document.getElementById('cal-output').innerHTML='<div class="empty">No due dates found for the current filters.</div>';return;
+    document.getElementById('cal-output').innerHTML='<div class="empty">No due dates in the next 4 months.</div>';return;
   }
-
   let html='';
   if(overdue.length){
-    html+=`<div class="list-section"><div class="list-month-title" style="color:#A32D2D">Overdue (${overdue.length})</div>`;
-    html+=overdue.map(e=>listRow(e,true)).join('');
-    html+='</div>';
+    html+=`<div class="list-section"><div class="list-month-title" style="color:#A32D2D">⚠ Overdue (${overdue.length})</div>`;
+    html+=overdue.map(e=>listRow(e,true)).join('')+'</div>';
   }
-
-  // Group upcoming by month
   const byMonth={};
-  upcoming.forEach(e=>{const d=new Date(e.date+'T00:00:00');const key=`${d.getFullYear()}-${d.getMonth()}`;(byMonth[key]=byMonth[key]||[]).push(e);});
-  Object.keys(byMonth).sort().forEach(key=>{
-    const[y,m]=key.split('-').map(Number);
+  upcoming.forEach(e=>{const d=new Date(e.date+'T00:00:00');const k=`${d.getFullYear()}-${String(d.getMonth()).padStart(2,'0')}`;(byMonth[k]=byMonth[k]||[]).push(e);});
+  Object.keys(byMonth).sort().forEach(k=>{
+    const[y,m]=k.split('-').map(Number);
     html+=`<div class="list-section"><div class="list-month-title">${MONTHS[m]} ${y}</div>`;
-    html+=byMonth[key].map(e=>listRow(e,false)).join('');
-    html+='</div>';
+    html+=byMonth[k].map(e=>listRow(e,false)).join('')+'</div>';
   });
-
   document.getElementById('cal-output').innerHTML=html;
 }
 
@@ -313,29 +382,226 @@ function listRow(e,isOver){
   const diff=Math.round((d-today)/86400000);
   const dateStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
   const diffStr=isOver?`${Math.abs(diff)}d over`:diff===0?'Today':diff===1?'Tomorrow':`${diff}d`;
-  const dateCls=isOver?'over':diff<=7?'soon':'';
-  const dot=e.over?'#E24B4A':EV_DOT[e.type]||'#888';
-  const badge=e.job?`<span class="badge ${SC[e.job.status]||''}">${e.job.status}</span>`:'';
-  const taskBadge=e.task?`<span class="badge ${TC[e.task.status]||''}">${e.task.status}</span>`:'';
+  const dot2=e.over?'#E24B4A':EV_DOT[e.type]||'#888';
+  const badge=e.job&&e.job.status?`<span class="badge ${SC[e.job.status]||''}">${e.job.status}</span>`:'';
+  const tbadge=e.task?`<span class="badge ${TC[e.task.status]||''}">${e.task.status}</span>`:'';
   return`<div class="list-row">
-    <div class="list-date ${dateCls}">${dateStr}<br><span style="font-size:11px;color:inherit">${diffStr}</span></div>
-    <div class="list-type-dot" style="background:${dot}"></div>
+    <div class="list-date ${isOver?'over':diff<=7?'soon':''}">${dateStr}<br><span style="font-size:10px">${diffStr}</span></div>
+    <div class="list-type-dot" style="background:${dot2}"></div>
     <div class="list-info">
       <div class="list-label">${e.label}</div>
       <div class="list-sub">${e.typeLabel} · ${e.sub}</div>
     </div>
-    ${badge||taskBadge}
+    ${tbadge||badge}
   </div>`;
 }
 
-// Popover
-let allEvents=[];
+// ── GANTT ──────────────────────────────────────────────────────────────────
+const DAY_W=28; // px per day
+
+function dateToStr(d){return d.toISOString().slice(0,10);}
+function strToDate(s){return new Date(s+'T00:00:00');}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+
+function renderGantt(){
+  const fd=document.getElementById('f-drafter').value;
+  const ft=document.getElementById('f-type').value;
+
+  // Filter jobs
+  let filtJobs=jobs.filter(j=>{
+    if(j.status==='Cancelled')return false;
+    if(fd&&j.drafter!==fd)return false;
+    return true;
+  });
+
+  if(!filtJobs.length){
+    document.getElementById('cal-output').innerHTML='<div class="empty">No projects to display. Add projects with due dates to see the Gantt chart.</div>';
+    return;
+  }
+
+  // Determine date range
+  const today=new Date();today.setHours(0,0,0,0);
+  if(!ganttStart){
+    // Start 1 week before today
+    ganttStart=addDays(today,-7);
+  }
+  const ganttEnd=addDays(ganttStart,ganttDays);
+
+  // Build month header segments
+  const months=[];
+  let d=new Date(ganttStart);
+  while(d<ganttEnd){
+    const mStart=new Date(d);
+    const mEnd=new Date(d.getFullYear(),d.getMonth()+1,1);
+    const end=mEnd<ganttEnd?mEnd:ganttEnd;
+    const days=Math.round((end-mStart)/86400000);
+    months.push({label:`${MONTHS[d.getMonth()]} ${d.getFullYear()}`,days,width:days*DAY_W});
+    d=mEnd;
+  }
+
+  const totalW=ganttDays*DAY_W;
+  const todayOffset=Math.round((today-ganttStart)/86400000);
+  const todayPx=todayOffset*DAY_W;
+
+  // Build rows: one job row + task rows per job
+  const rows=[];
+  filtJobs.forEach(j=>{
+    const jTasks=tasks.filter(t=>{
+      if(t.job_id!==j.id)return false;
+      if(fd&&t.assignee&&t.assignee!==fd&&j.drafter!==fd)return false;
+      return true;
+    });
+    rows.push({type:'job',job:j,tasks:jTasks});
+    if(jTasks.length)jTasks.forEach(t=>rows.push({type:'task',task:t,job:j}));
+  });
+
+  // ── Labels column ──
+  let labelsHtml=`<div class="gantt-label-header"><span>Project / Task</span></div>`;
+  rows.forEach(r=>{
+    if(r.type==='job'){
+      const j=r.job;
+      labelsHtml+=`<div class="gantt-label-row job-row">
+        <span class="gjob-no">${j.job_no}</span>
+        <span class="glabel" title="${j.client}">${j.client}</span>
+        <span class="badge ${SC[j.status]||''}" style="flex-shrink:0;margin-left:6px">${j.status}</span>
+      </div>`;
+    } else {
+      const t=r.task;
+      labelsHtml+=`<div class="gantt-label-row task-row-label">
+        <span class="glabel" title="${t.name}">${t.name}</span>
+        <span class="badge ${TC[t.status]||''}" style="flex-shrink:0;margin-left:4px;font-size:10px">${t.status}</span>
+      </div>`;
+    }
+  });
+
+  // ── Grid lines (every 7 days) ──
+  let gridLines='';
+  for(let i=0;i<=ganttDays;i+=7){
+    gridLines+=`<div class="gantt-grid-line" style="left:${i*DAY_W}px"></div>`;
+  }
+  // Today line
+  const todayLineHtml=todayOffset>=0&&todayOffset<=ganttDays
+    ?`<div class="gantt-today-line" style="left:${todayPx}px" title="Today"></div>`:'' ;
+
+  // ── Chart rows ──
+  let rowsHtml='';
+  rows.forEach(r=>{
+    if(r.type==='job'){
+      const j=r.job;
+      const done=j.status==='Complete';
+      let barsHtml=gridLines+todayLineHtml;
+
+      // Helper: draw a bar from date1 to date2 (or a point milestone if same)
+      function bar(date1,date2,cls,tip,label){
+        if(!date1)return'';
+        const s=strToDate(date1);
+        const e=date2?strToDate(date2):s;
+        const left=Math.round((s-ganttStart)/86400000)*DAY_W;
+        let width=Math.max(Math.round((e-s)/86400000)*DAY_W,DAY_W);
+        // clip to visible
+        if(left+width<0||left>totalW)return'';
+        const clampedLeft=Math.max(0,left);
+        const clampedWidth=width-(clampedLeft-left);
+        if(clampedWidth<=0)return'';
+        return`<div class="gantt-bar ${cls}" style="left:${clampedLeft}px;width:${Math.min(clampedWidth,totalW-clampedLeft)}px;height:22px"
+          onmouseenter="showTip(event,'${tip.replace(/'/g,"&#39;")}')"
+          onmouseleave="hideTip()">${clampedWidth>40?label:''}</div>`;
+      }
+
+      // Design → Draft bar (if both dates exist, span between them; otherwise single milestone)
+      if(!ft||ft==='design'){
+        const endDate=j.due_draft||j.due_design;
+        barsHtml+=bar(j.due_design,endDate,'gb-design',`Design due: ${fmtDate(j.due_design)}`,'Design');
+      }
+      if(!ft||ft==='draft'){
+        const startDate=j.due_design||j.due_draft;
+        const endDate=j.due_issue||j.due_draft;
+        barsHtml+=bar(j.due_draft,endDate,'gb-draft',`Draft due: ${fmtDate(j.due_draft)}`,'Draft');
+      }
+      if(!ft||ft==='issue'){
+        // Issue date as diamond milestone
+        if(j.due_issue){
+          const left=Math.round((strToDate(j.due_issue)-ganttStart)/86400000)*DAY_W;
+          if(left>=0&&left<=totalW){
+            barsHtml+=`<div class="gantt-bar gb-issue gb-milestone"
+              style="left:${left-6}px;top:50%"
+              onmouseenter="showTip(event,'Issue date: ${fmtDate(j.due_issue)}')"
+              onmouseleave="hideTip()"></div>`;
+          }
+        }
+      }
+      rowsHtml+=`<div class="gantt-row job-row" style="width:${totalW}px">${barsHtml}</div>`;
+
+    } else {
+      // Task row
+      const t=r.task;
+      if(!t.due){rowsHtml+=`<div class="gantt-row task-row" style="width:${totalW}px">${gridLines}${todayLineHtml}</div>`;return;}
+      const left=Math.round((strToDate(t.due)-ganttStart)/86400000)*DAY_W;
+      let taskHtml=gridLines+todayLineHtml;
+      if(left>=0&&left<=totalW){
+        // If hours set, draw a bar backwards; otherwise a pill on the due date
+        const hrs=parseFloat(t.hours_custom)||parseFloat(t.hours)||0;
+        const hpd=8;
+        let barLeft=left,barWidth=Math.max(DAY_W,hrs?Math.ceil(hrs/hpd)*DAY_W:DAY_W);
+        if(hrs>0){barLeft=Math.max(0,left-barWidth+DAY_W);}
+        const cls=t.status==='Done'?'gb-task-done':t.status==='Blocked'?'gb-task-blocked':'gb-task';
+        const tip=`${t.name}\nDue: ${fmtDate(t.due)}${hrs?`\n${hrs}h needed`:''}`;
+        const clampedLeft=Math.max(0,barLeft);
+        const clampedW=Math.min(barWidth-(clampedLeft-barLeft),totalW-clampedLeft);
+        if(clampedW>0){
+          taskHtml+=`<div class="gantt-bar ${cls}" style="left:${clampedLeft}px;width:${clampedW}px;height:16px"
+            onmouseenter="showTip(event,'${tip.replace(/\n/g,'&#10;').replace(/'/g,"&#39;")}')"
+            onmouseleave="hideTip()">${clampedW>50?t.name:''}</div>`;
+        }
+      }
+      rowsHtml+=`<div class="gantt-row task-row" style="width:${totalW}px">${taskHtml}</div>`;
+    }
+  });
+
+  // ── Month header ──
+  const monthHdrHtml=months.map(m=>`
+    <div class="gantt-month-hdr" style="width:${m.width}px">
+      <span>${m.label}</span>
+      <span>${m.days} days</span>
+    </div>`).join('');
+
+  document.getElementById('cal-output').innerHTML=`
+    <div class="gantt-wrap">
+      <div class="gantt-container">
+        <div class="gantt-labels">${labelsHtml}</div>
+        <div class="gantt-chart">
+          <div class="gantt-header" style="min-width:${totalW}px">${monthHdrHtml}</div>
+          <div class="gantt-rows" style="min-width:${totalW}px">${rowsHtml}</div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#6b6a65;margin-top:8px;padding:0 4px">
+      Showing ${ganttDays}-day window starting ${ganttStart.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}.
+      Use zoom buttons to change range. Scroll right to see more.
+    </div>`;
+}
+
+// ── Tooltip ────────────────────────────────────────────────────────────────
+const tooltip=document.getElementById('g-tooltip');
+function showTip(evt,text){
+  tooltip.style.display='block';
+  tooltip.innerHTML=text.replace(/&#10;/g,'<br>');
+  moveTip(evt);
+}
+function hideTip(){tooltip.style.display='none';}
+function moveTip(evt){
+  let x=evt.clientX+14,y=evt.clientY-10;
+  if(x+230>window.innerWidth)x=evt.clientX-230;
+  tooltip.style.left=x+'px';tooltip.style.top=y+'px';
+}
+document.addEventListener('mousemove',e=>{if(tooltip.style.display==='block')moveTip(e);});
+
+// ── Popover (month view) ───────────────────────────────────────────────────
 function showPop(dateStr,evt){
   evt.stopPropagation();
   const events=buildEvents().filter(e=>e.date===dateStr);
   const d=new Date(dateStr+'T00:00:00');
-  const title=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  document.getElementById('pop-date-title').textContent=title;
+  document.getElementById('pop-date-title').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
   document.getElementById('pop-items').innerHTML=events.length?events.map(e=>`
     <div class="pop-item">
       <div class="pop-dot" style="background:${e.over?'#E24B4A':EV_DOT[e.type]||'#888'}"></div>
@@ -346,20 +612,20 @@ function showPop(dateStr,evt){
     </div>`).join(''):'<div style="color:#aaa;font-size:13px">No events</div>';
   const pop=document.getElementById('day-pop');
   pop.classList.add('open');
-  // position near click
-  const vw=window.innerWidth,vh=window.innerHeight;
   let x=evt.clientX+12,y=evt.clientY+12;
-  if(x+330>vw)x=evt.clientX-330;
-  if(y+250>vh)y=evt.clientY-250;
-  pop.style.left=Math.max(8,x)+'px';
-  pop.style.top=Math.max(8,y)+'px';
+  if(x+330>window.innerWidth)x=evt.clientX-330;
+  if(y+250>window.innerHeight)y=evt.clientY-250;
+  pop.style.left=Math.max(8,x)+'px';pop.style.top=Math.max(8,y)+'px';
 }
 function closePop(){document.getElementById('day-pop').classList.remove('open');}
-document.addEventListener('click',e=>{const p=document.getElementById('day-pop');if(p.classList.contains('open')&&!p.contains(e.target))closePop();});
+document.addEventListener('click',e=>{
+  const p=document.getElementById('day-pop');
+  if(p.classList.contains('open')&&!p.contains(e.target))closePop();
+});
 
-['f-drafter','f-type'].forEach(id=>document.getElementById(id).addEventListener('change',renderCal));
-loadAll();
+// ── Init ───────────────────────────────────────────────────────────────────
 setView('month');
+loadAll();
 </script>
 </body>
 </html>

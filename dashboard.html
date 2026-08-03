@@ -198,6 +198,16 @@ const COLORS=['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4','#4a3aa7','#e349
 const AVCOLORS=[{bg:'#E6F1FB',fg:'#0C447C'},{bg:'#EAF3DE',fg:'#27500A'},{bg:'#FAEEDA',fg:'#633806'},{bg:'#EEEDFE',fg:'#3C3489'},{bg:'#FAECE7',fg:'#712B13'},{bg:'#F1EFE8',fg:'#444441'},{bg:'#FBEAF0',fg:'#72243E'}];
 const TASK_COLORS={'To do':'#888780','In progress':'#2a78d6',Done:'#1baf7a',Blocked:'#e34948'};
 
+
+// ── Auth guard ─────────────────────────────────────────────────────────────
+(async function(){
+  const {data:{session}}=await db.auth.getSession();
+  if(!session){window.location.href='login.html';return;}
+  const {data:profile}=await db.from('jt_user_profiles').select('role').eq('id',session.user.id).single();
+  if(!profile||profile.role!=='admin'){window.location.href='my-tasks.html';return;}
+  const hdr=document.querySelector('header');
+  if(hdr){const sb=document.createElement('button');sb.textContent='Sign out';sb.style.cssText='margin-left:auto;height:30px;padding:0 12px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;color:#1a1a18';sb.onclick=async()=>{await db.auth.signOut();window.location.href='login.html';};hdr.appendChild(sb);}
+})();
 let jobs=[],drafters=[],tasks=[];
 let barChart=null,pieChart=null;
 function setSyncDot(s){const d=document.getElementById('sync-dot');if(d)d.style.background=s==='on'?'#1baf7a':s==='err'?'#A32D2D':'#e0dfd8';}
@@ -524,7 +534,7 @@ function renderTimeline(filteredJobs){
 
   // Project milestones
   filteredJobs.filter(j=>j.status!=='Complete'&&j.status!=='Cancelled').forEach(j=>{
-    [{key:'dueDesign',label:'Design due'},{key:'dueDraft',label:'Draft due'},{key:'dueIssue',label:'Issue date'}].forEach(dt=>{
+    [{key:'due_design',label:'Design due'},{key:'due_draft',label:'Draft due'},{key:'due_issue',label:'Issue date'}].forEach(dt=>{
       if(!j[dt.key])return;
       const d=new Date(j[dt.key]+'T00:00:00');
       if(d>cutoff)return;
@@ -749,7 +759,7 @@ function exportPDF(){
     const today=new Date();today.setHours(0,0,0,0);
     const cutoff=new Date();cutoff.setDate(cutoff.getDate()+30);
     filteredJobs.filter(j=>j.status!=='Complete'&&j.status!=='Cancelled').forEach(j=>{
-      [{key:'dueDesign',label:'Design due'},{key:'dueDraft',label:'Draft due'},{key:'dueIssue',label:'Issue date'}].forEach(dt=>{
+      [{key:'due_design',label:'Design due'},{key:'due_draft',label:'Draft due'},{key:'due_issue',label:'Issue date'}].forEach(dt=>{
         if(!j[dt.key])return;
         const d=new Date(j[dt.key]+'T00:00:00');
         if(d>cutoff)return;
