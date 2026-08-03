@@ -16,43 +16,6 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON, {
   }
 });
 
-// ── Page routing helper ─────────────────────────────────────────────────────
-// Call this at the top of every protected page.
-// role: 'admin' = full app, 'drafter' = my-tasks only
-// Returns the profile if authorized, otherwise redirects and returns null.
-async function requireAuth(requiredRole){
-  const { data:{ session } } = await db.auth.getSession();
-  if(!session){
-    if(window.location.pathname.endsWith('login.html')) return null; // already there
-    window.location.replace('login.html');
-    return null;
-  }
-  const { data: profile } = await db
-    .from('jt_user_profiles')
-    .select('*')
-    .eq('id', session.user.id)
-    .single();
-
-  if(!profile){
-    await db.auth.signOut();
-    window.location.replace('login.html');
-    return null;
-  }
-
-  // Admin trying to hit drafter page — send to full app
-  if(requiredRole === 'drafter' && profile.role === 'admin'){
-    window.location.replace('index.html');
-    return null;
-  }
-  // Drafter trying to hit admin page — send to their tasks
-  if(requiredRole === 'admin' && profile.role !== 'admin'){
-    window.location.replace('my-tasks.html');
-    return null;
-  }
-
-  return { session, profile };
-}
-
 // ── Shared helpers ─────────────────────────────────────────────────────────
 function uid(){ return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2); }
 function daysDiff(d){ if(!d)return null; const t=new Date(d+'T00:00:00'),n=new Date(); n.setHours(0,0,0,0); return Math.round((t-n)/86400000); }
