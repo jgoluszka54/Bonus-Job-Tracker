@@ -17,17 +17,17 @@
 })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JobTrack — Dashboard</title>
+<title>Bonus Electric — Dashboard</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;font-size:15px}
 header{background:#fff;border-bottom:1px solid #e0dfd8;padding:0.85rem 1.5rem;display:flex;align-items:center;gap:1.5rem;position:sticky;top:0;z-index:10;flex-wrap:wrap}
 .logo{font-size:19px;font-weight:700;letter-spacing:-0.4px;white-space:nowrap;margin-right:0.5rem}
-.logo span{color:#185FA5}
+.logo span{color:#C41230}
 nav{display:flex;gap:2px;flex:1;flex-wrap:wrap}
 .nav-a{padding:6px 14px;border-radius:6px;font-size:14px;text-decoration:none;color:#6b6a65;font-weight:500;transition:all 0.1s;white-space:nowrap}
 .nav-a:hover{background:#f0efe8;color:#1a1a18}
-.nav-a.active{background:#E6F1FB;color:#0C447C}
+.nav-a.active{background:#F7F0F1;color:#C41230}
 .hdr-right{display:flex;align-items:center;gap:10px}
 .upd{font-size:12px;color:#aaa}
 .ref-btn{font-size:13px;padding:5px 12px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;cursor:pointer;color:#1a1a18}
@@ -39,7 +39,7 @@ main{padding:1.25rem 1.5rem;max-width:1400px}
 .kpi{background:#fff;border:1px solid #e0dfd8;border-radius:10px;padding:0.85rem 1rem}
 .kpi-n{font-size:26px;font-weight:700;line-height:1;margin-bottom:3px}
 .kpi-l{font-size:11px;color:#6b6a65;text-transform:uppercase;letter-spacing:0.5px}
-.blue{color:#185FA5}.amber{color:#854F0B}.red{color:#A32D2D}.green{color:#27500A}.purple{color:#534AB7}
+.blue{color:#C41230}.amber{color:#854F0B}.red{color:#A32D2D}.green{color:#27500A}.purple{color:#534AB7}
 
 /* Section */
 .sec{font-size:12px;font-weight:600;color:#6b6a65;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.9rem}
@@ -47,7 +47,7 @@ main{padding:1.25rem 1.5rem;max-width:1400px}
 /* Filter */
 .fbar{display:flex;gap:8px;margin-bottom:1.25rem;align-items:center;flex-wrap:wrap}
 .fbar select{font-size:13px;height:32px;padding:0 9px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;color:#1a1a18;outline:none}
-.fbar select:focus{border-color:#185FA5}
+.fbar select:focus{border-color:#C41230}
 .fbar label{font-size:13px;color:#6b6a65}
 
 /* Drafter cards */
@@ -64,14 +64,14 @@ main{padding:1.25rem 1.5rem;max-width:1400px}
 .card-tabs{display:flex;border-bottom:1px solid #f0efe8;background:#fafaf8}
 .card-tab{flex:1;text-align:center;padding:6px 4px;font-size:12px;font-weight:500;color:#6b6a65;cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;user-select:none}
 .card-tab:hover{color:#1a1a18}
-.card-tab.active{color:#185FA5;border-bottom-color:#185FA5;background:#fff}
+.card-tab.active{color:#C41230;border-bottom-color:#C41230;background:#fff}
 
 /* Tasks inside card */
 .task-list-inner{padding:0;max-height:260px;overflow-y:auto}
 .task-item{display:flex;align-items:flex-start;gap:9px;padding:8px 1.1rem;border-bottom:1px solid #f5f5f2;font-size:13px}
 .task-item:last-child{border-bottom:none}
 .task-cb{width:15px;height:15px;border-radius:3px;border:1.5px solid #c8c7c0;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.task-cb.done{background:#185FA5;border-color:#185FA5;color:#fff;font-size:9px;font-weight:700}
+.task-cb.done{background:#C41230;border-color:#C41230;color:#fff;font-size:9px;font-weight:700}
 .task-body{flex:1;min-width:0}
 .task-name-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px}
 .task-nm{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
@@ -105,18 +105,18 @@ main{padding:1.25rem 1.5rem;max-width:1400px}
 .lbar-f{height:100%;border-radius:3px;transition:width 0.4s}
 
 .more-row{font-size:12px;color:#6b6a65;text-align:center;padding:6px;background:#fafaf8;border-top:1px solid #f0efe8;cursor:pointer}
-.more-row a{color:#185FA5;text-decoration:none}
+.more-row a{color:#C41230;text-decoration:none}
 .no-items{font-size:13px;color:#aaa;text-align:center;padding:1rem}
 
 /* Badges */
 .badge{display:inline-block;font-size:11px;padding:1px 6px;border-radius:3px;font-weight:500;white-space:nowrap}
-.b-active{background:#E6F1FB;color:#0C447C}
+.b-active{background:#F7F0F1;color:#3D0A14}
 .b-review{background:#FAEEDA;color:#633806}
 .b-complete{background:#EAF3DE;color:#27500A}
 .b-onhold{background:#F1EFE8;color:#444441}
 .b-cancelled{background:#FCEBEB;color:#791F1F}
 .t-todo{background:#F1EFE8;color:#444441}
-.t-prog{background:#E6F1FB;color:#0C447C}
+.t-prog{background:#F7F0F1;color:#3D0A14}
 .t-done{background:#EAF3DE;color:#27500A}
 .t-block{background:#FCEBEB;color:#791F1F}
 .p-urgent{background:#FCEBEB;color:#791F1F}
@@ -152,7 +152,7 @@ main{padding:1.25rem 1.5rem;max-width:1400px}
 </head>
 <body>
 <header>
-  <div class="logo">Job<span>Track</span></div>
+  <div class="logo"><img src="logo.jpg" alt="Bonus Electric & Technology Solutions" style="height:38px;width:auto;object-fit:contain;display:block"></div>
   <nav>
     <a href="index.html" class="nav-a">Projects</a>
     <a href="tasks.html" class="nav-a">Tasks</a>
@@ -163,7 +163,7 @@ main{padding:1.25rem 1.5rem;max-width:1400px}
     <span class="upd" id="upd"></span>
     <span class="sync-dot off" id="sync-dot" title="Live sync status" style="width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle"></span>
     <button class="ref-btn" onclick="location.reload()">↻ Refresh</button>
-    <button class="ref-btn" id="pdf-btn" onclick="exportPDF()" style="background:#185FA5;color:#fff;border-color:#185FA5;font-weight:500">⬇ Export PDF</button>
+    <button class="ref-btn" id="pdf-btn" onclick="exportPDF()" style="background:#C41230;color:#fff;border-color:#C41230;font-weight:500">⬇ Export PDF</button>
   </div>
 </header>
 
@@ -209,7 +209,7 @@ const SC={Active:'b-active','In review':'b-review',Complete:'b-complete','On hol
 const TC={'To do':'t-todo','In progress':'t-prog',Done:'t-done',Blocked:'t-block'};
 const PC={urgent:'p-urgent',high:'p-high',low:'p-low',normal:''};
 const COLORS=['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4','#4a3aa7','#e34948'];
-const AVCOLORS=[{bg:'#E6F1FB',fg:'#0C447C'},{bg:'#EAF3DE',fg:'#27500A'},{bg:'#FAEEDA',fg:'#633806'},{bg:'#EEEDFE',fg:'#3C3489'},{bg:'#FAECE7',fg:'#712B13'},{bg:'#F1EFE8',fg:'#444441'},{bg:'#FBEAF0',fg:'#72243E'}];
+const AVCOLORS=[{bg:'#F7F0F1',fg:'#3D0A14'},{bg:'#EAF3DE',fg:'#27500A'},{bg:'#FAEEDA',fg:'#633806'},{bg:'#EEEDFE',fg:'#3C3489'},{bg:'#FAECE7',fg:'#712B13'},{bg:'#F1EFE8',fg:'#444441'},{bg:'#FBEAF0',fg:'#72243E'}];
 const TASK_COLORS={'To do':'#888780','In progress':'#2a78d6',Done:'#1baf7a',Blocked:'#e34948'};
 
 
@@ -373,7 +373,7 @@ function renderCards(allDrafters,filteredJobs){
     // Load bar based on open tasks (max 10 = full)
     const MAX=10;
     const loadPct=Math.min(100,Math.round((openTasks.length/MAX)*100));
-    const barColor=loadPct>=90?'#A32D2D':loadPct>=70?'#854F0B':'#185FA5';
+    const barColor=loadPct>=90?'#A32D2D':loadPct>=70?'#854F0B':'#C41230';
     const loadLabel=loadPct>=90?'At capacity':loadPct>=70?'Heavy':'Normal';
 
     const tags=[];
@@ -577,7 +577,7 @@ function renderTimeline(filteredJobs){
       if(!j[dt.key])return;
       const d=new Date(j[dt.key]+'T00:00:00');
       if(d>cutoff)return;
-      entries.push({date:j[dt.key],label:`${j.job_no} — ${j.client}`,type:dt.label,who:j.drafter||'Unassigned',badge:`<span class="badge ${SC[j.status]||''}">${j.status}</span>`,days:daysDiff(j[dt.key]),dot:'#185FA5'});
+      entries.push({date:j[dt.key],label:`${j.job_no} — ${j.client}`,type:dt.label,who:j.drafter||'Unassigned',badge:`<span class="badge ${SC[j.status]||''}">${j.status}</span>`,days:daysDiff(j[dt.key]),dot:'#C41230'});
     });
   });
 

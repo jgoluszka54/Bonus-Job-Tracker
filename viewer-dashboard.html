@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+(function(){
+  try{
+    var role=localStorage.getItem('jt_role');
+    var auth=localStorage.getItem('jobtrack-auth');
+    if(!auth||!role){localStorage.removeItem('jt_role');window.location.replace('login.html');return;}
+    var t=JSON.parse(auth);
+    if(!t||!t.access_token){localStorage.removeItem('jt_role');window.location.replace('login.html');return;}
+    // Only admin and viewer can see this page
+    if(role==='drafter'){window.location.replace('my-tasks.html');}
+  }catch(e){window.location.replace('login.html');}
+})();
+</script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bonus Electric — Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;font-size:15px}
+header{background:#fff;border-bottom:1px solid #e0dfd8;padding:.85rem 1.5rem;display:flex;align-items:center;gap:1.5rem;position:sticky;top:0;z-index:10;flex-wrap:wrap}
+.logo{display:flex;align-items:center;margin-right:.5rem}
+nav{display:flex;gap:2px;flex:1}
+.nav-a{padding:6px 14px;border-radius:6px;font-size:14px;text-decoration:none;color:#6b6a65;font-weight:500;white-space:nowrap}
+.nav-a:hover{background:#f0efe8;color:#1a1a18}
+.nav-a.active{background:#F7F0F1;color:#C41230}
+.hdr-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+.upd{font-size:12px;color:#aaa}
+.ref-btn{font-size:13px;padding:5px 12px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;cursor:pointer;color:#1a1a18}
+.ref-btn:hover{background:#f0efe8}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#e0dfd8;display:inline-block;vertical-align:middle}
+main{padding:1.25rem 1.5rem;max-width:1400px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem}
+.kpi{background:#fff;border:1px solid #e0dfd8;border-radius:10px;padding:.85rem 1rem}
+.kpi-n{font-size:26px;font-weight:700;line-height:1;margin-bottom:3px}
+.kpi-l{font-size:11px;color:#6b6a65;text-transform:uppercase;letter-spacing:.5px}
+.red-n{color:#C41230}.amber{color:#854F0B}.green{color:#27500A}.purple{color:#534AB7}
+.sec{font-size:12px;font-weight:600;color:#6b6a65;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.9rem}
+.fbar{display:flex;gap:8px;margin-bottom:1.25rem;align-items:center;flex-wrap:wrap}
+.fbar select{font-size:13px;height:32px;padding:0 9px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;color:#1a1a18;outline:none}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:1.75rem}
+.dcard{background:#fff;border:1px solid #e0dfd8;border-radius:12px;overflow:hidden}
+.dcard-head{display:flex;align-items:center;gap:11px;padding:1rem 1.1rem .9rem;border-bottom:1px solid #f0efe8}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.dcard-name{font-size:15px;font-weight:600}
+.dcard-sub{font-size:12px;color:#6b6a65;margin-top:2px}
+.lbar-wrap{padding:.65rem 1.1rem;border-bottom:1px solid #f0efe8;background:#fafaf8}
+.lbar-labels{display:flex;justify-content:space-between;font-size:11px;color:#6b6a65;margin-bottom:4px}
+.lbar{height:6px;background:#e0dfd8;border-radius:3px;overflow:hidden}
+.lbar-f{height:100%;border-radius:3px}
+.task-list-inner{max-height:220px;overflow-y:auto}
+.task-item{display:flex;align-items:flex-start;gap:9px;padding:8px 1.1rem;border-bottom:1px solid #f5f5f2;font-size:13px}
+.task-item:last-child{border-bottom:none}
+.task-body{flex:1;min-width:0}
+.task-nm{font-weight:500;display:block;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-meta{font-size:11px;color:#6b6a65}
+.badge{display:inline-block;font-size:11px;padding:1px 6px;border-radius:3px;font-weight:500;white-space:nowrap}
+.b-active{background:#F7F0F1;color:#C41230}.b-review{background:#FAEEDA;color:#633806}
+.b-complete{background:#EAF3DE;color:#27500A}.b-onhold{background:#F1EFE8;color:#444441}.b-cancelled{background:#FCEBEB;color:#791F1F}
+.t-todo{background:#F1EFE8;color:#444441}.t-prog{background:#F7F0F1;color:#C41230}
+.t-done{background:#EAF3DE;color:#27500A}.t-block{background:#FCEBEB;color:#791F1F}
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:1.75rem}
+.chart-card{background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:1.1rem 1.2rem}
+.tl-card{background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:1.1rem 1.2rem}
+.tl-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f5f5f2;font-size:13px}
+.tl-row:last-child{border-bottom:none}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tl-info{flex:1;min-width:0}
+.tl-nm{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;display:inline-block}
+.tl-lbl{font-size:11px;color:#6b6a65;background:#f5f5f2;padding:1px 6px;border-radius:3px;margin-left:4px}
+.tl-who{font-size:12px;color:#6b6a65;margin-top:2px}
+.tl-date{font-size:12px;font-weight:500;text-align:right;flex-shrink:0}
+.tl-date.over{color:#A32D2D}.tl-date.soon{color:#854F0B}
+.no-items{font-size:13px;color:#aaa;text-align:center;padding:1rem}
+.empty{text-align:center;padding:2.5rem;color:#6b6a65}
+.viewer-badge{background:#F7F0F1;color:#C41230;font-size:12px;font-weight:500;padding:3px 10px;border-radius:12px;border:1px solid #E8A0A8}
+@media(max-width:800px){.charts-row{grid-template-columns:1fr}.dgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><img src="logo.jpg" alt="Bonus Electric" style="height:38px;width:auto;object-fit:contain"></div>
+  <div class="hdr-right">
+    <span class="viewer-badge">View only</span>
+    <span class="sync-dot" id="sync-dot"></span>
+    <span class="upd" id="upd"></span>
+    <button class="ref-btn" onclick="location.reload()">↻ Refresh</button>
+    <button class="ref-btn" onclick="signOut()" style="border-color:#c8c7c0">Sign out</button>
+  </div>
+</header>
+
+<main>
+  <div class="kpi-row" id="kpi-row"></div>
+  <div class="fbar">
+    <label style="font-size:13px;color:#6b6a65">Filter by drafter:</label>
+    <select id="f-drafter" onchange="renderAll()"><option value="">All drafters</option></select>
+    <label style="font-size:13px;color:#6b6a65;margin-left:8px">Status:</label>
+    <select id="f-status" onchange="renderAll()">
+      <option value="">All</option>
+      <option>Active</option><option>In review</option><option>Complete</option><option>On hold</option>
+    </select>
+  </div>
+  <div class="sec">Workload per drafter</div>
+  <div class="dgrid" id="dgrid"></div>
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="sec">Open tasks per drafter</div>
+      <div style="position:relative" id="bar-wrap"><canvas id="bar-chart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="sec">Task status breakdown</div>
+      <div style="position:relative;height:150px;width:150px;margin:0 auto .75rem"><canvas id="pie-chart"></canvas></div>
+      <div id="pie-legend" style="font-size:13px;display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+  </div>
+  <div class="tl-card">
+    <div class="sec" style="margin-bottom:.75rem">Upcoming due dates — next 30 days</div>
+    <div id="timeline"></div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="db.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const SC={Active:'b-active','In review':'b-review',Complete:'b-complete','On hold':'b-onhold',Cancelled:'b-cancelled'};
+const TC={'To do':'t-todo','In progress':'t-prog',Done:'t-done',Blocked:'t-block'};
+const COLORS=['#C41230','#58595B','#1baf7a','#eda100','#4a3aa7','#e87ba4','#e34948'];
+const AVCOLORS=[{bg:'#F7F0F1',fg:'#C41230'},{bg:'#EAF3DE',fg:'#27500A'},{bg:'#FAEEDA',fg:'#633806'},{bg:'#EEEDFE',fg:'#3C3489'},{bg:'#FAECE7',fg:'#712B13'},{bg:'#F1EFE8',fg:'#444441'}];
+const TASK_COLORS={'To do':'#888780','In progress':'#C41230',Done:'#1baf7a',Blocked:'#e34948'};
+let jobs=[],drafters=[],tasks=[],barChart=null,pieChart=null;
+
+const dot=document.getElementById('sync-dot');
+function setSyncDot(s){dot.style.background=s==='on'?'#1baf7a':s==='err'?'#A32D2D':'#e0dfd8';}
+
+async function loadAll(){
+  try{
+    const {data:{session}}=await db.auth.getSession();
+    if(!session){window.location.replace('login.html');return;}
+    const [j,d,t]=await Promise.all([
+      db.from('jt_jobs').select('*').order('job_no'),
+      db.from('jt_drafters').select('*').order('name'),
+      db.from('jt_tasks').select('*')
+    ]);
+    if(j.error)throw j.error; if(d.error)throw d.error; if(t.error)throw t.error;
+    jobs=j.data||[]; drafters=(d.data||[]).map(r=>r.name); tasks=t.data||[];
+    document.getElementById('f-drafter').innerHTML='<option value="">All drafters</option>'+drafters.map(n=>`<option>${n}</option>`).join('');
+    setSyncDot('on'); renderAll();
+    document.getElementById('upd').textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  }catch(e){setSyncDot('err');console.error(e);}
+}
+
+db.channel('viewer-rt')
+  .on('postgres_changes',{event:'*',schema:'public',table:'jt_jobs'},()=>loadAll())
+  .on('postgres_changes',{event:'*',schema:'public',table:'jt_tasks'},()=>loadAll())
+  .subscribe(s=>setSyncDot(s==='SUBSCRIBED'?'on':'off'));
+
+function daysDiff(d){if(!d)return null;const t=new Date(d+'T00:00:00'),n=new Date();n.setHours(0,0,0,0);return Math.round((t-n)/86400000);}
+function fmtDate(d){if(!d)return'—';const[y,m,day]=d.split('-');return`${m}/${day}/${y}`;}
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+
+function renderAll(){
+  const fd=document.getElementById('f-drafter').value;
+  const fs=document.getElementById('f-status').value;
+  const fJobs=jobs.filter(j=>(fd?(j.drafter||'').split(',').map(s=>s.trim()).includes(fd):true)&&(fs?j.status===fs:true));
+  const allDrafters=fd?[fd]:drafters.slice().sort();
+  renderKPI(fJobs,allDrafters);
+  renderCards(allDrafters,fJobs);
+  renderBarChart(allDrafters);
+  renderPieChart();
+  renderTimeline(fJobs);
+}
+
+function renderKPI(fJobs,allDrafters){
+  const open=tasks.filter(t=>t.status!=='Done').length;
+  const blocked=tasks.filter(t=>t.status==='Blocked').length;
+  const overdue=tasks.filter(t=>t.status!=='Done'&&t.due&&daysDiff(t.due)<0).length;
+  document.getElementById('kpi-row').innerHTML=`
+    <div class="kpi"><div class="kpi-n">${fJobs.length}</div><div class="kpi-l">Projects</div></div>
+    <div class="kpi"><div class="kpi-n red-n">${fJobs.filter(j=>j.status==='Active'||j.status==='In review').length}</div><div class="kpi-l">Active</div></div>
+    <div class="kpi"><div class="kpi-n purple">${tasks.length}</div><div class="kpi-l">Total tasks</div></div>
+    <div class="kpi"><div class="kpi-n red-n">${open}</div><div class="kpi-l">Open tasks</div></div>
+    <div class="kpi"><div class="kpi-n amber">${blocked}</div><div class="kpi-l">Blocked</div></div>
+    <div class="kpi"><div class="kpi-n amber">${overdue}</div><div class="kpi-l">Overdue</div></div>
+    <div class="kpi"><div class="kpi-n">${allDrafters.length}</div><div class="kpi-l">Drafters</div></div>`;
+}
+
+function renderCards(allDrafters,fJobs){
+  const grid=document.getElementById('dgrid');
+  if(!allDrafters.length){grid.innerHTML='<div class="empty">No drafters yet.</div>';return;}
+  grid.innerHTML='';
+  allDrafters.forEach((d,i)=>{
+    const ac=AVCOLORS[i%AVCOLORS.length];
+    const myJobs=fJobs.filter(j=>(j.drafter||'').split(',').map(s=>s.trim()).includes(d)&&j.status!=='Cancelled');
+    const myTasks=tasks.filter(t=>t.assignee===d||(()=>{const j=jobs.find(x=>x.id===t.job_id);return j&&(j.drafter||'').split(',').map(s=>s.trim()).includes(d)&&!t.assignee;})());
+    const open=myTasks.filter(t=>t.status!=='Done');
+    const MAX=10;
+    const pct=Math.min(100,Math.round((open.length/MAX)*100));
+    const barColor=pct>=90?'#A32D2D':pct>=70?'#854F0B':'#C41230';
+    const sorted=open.slice().sort((a,b)=>{
+      const ord={Blocked:0,'In progress':1,'To do':2};
+      return(ord[a.status]??9)-(ord[b.status]??9)||(a.due||'z').localeCompare(b.due||'z');
+    });
+    const div=document.createElement('div');div.className='dcard';
+    div.innerHTML=`
+      <div class="dcard-head">
+        <div class="avatar" style="background:${ac.bg};color:${ac.fg}">${initials(d)}</div>
+        <div><div class="dcard-name">${d}</div><div class="dcard-sub">${open.length} open · ${myJobs.length} project${myJobs.length!==1?'s':''}</div></div>
+      </div>
+      <div class="lbar-wrap">
+        <div class="lbar-labels"><span>Task load</span><span>${open.length}/${MAX}</span></div>
+        <div class="lbar"><div class="lbar-f" style="width:${pct}%;background:${barColor}"></div></div>
+      </div>
+      <div class="task-list-inner">
+        ${sorted.length?sorted.slice(0,5).map(t=>{
+          const j=jobs.find(x=>x.id===t.job_id)||{};
+          const n=daysDiff(t.due);
+          const dueStr=t.due?(n<0?`<span style="color:#A32D2D">${fmtDate(t.due)} (${Math.abs(n)}d over)</span>`:n===0?`<span style="color:#854F0B">Today</span>`:n<=7?`<span style="color:#854F0B">${fmtDate(t.due)} (${n}d)</span>`:fmtDate(t.due)):'';
+          return`<div class="task-item">
+            <div class="task-body">
+              <span class="task-nm">${t.name}</span>
+              <div class="task-meta">${j.job_no?`<strong>${j.job_no}</strong> · `:''}${j.client||''}${dueStr?' · '+dueStr:''}</div>
+            </div>
+            <span class="badge ${TC[t.status]||''}">${t.status}</span>
+          </div>`;
+        }).join('')+''+( sorted.length>5?`<div style="font-size:12px;color:#6b6a65;text-align:center;padding:6px">+${sorted.length-5} more</div>`:'')
+        :'<div class="no-items">No open tasks</div>'}
+      </div>`;
+    grid.appendChild(div);
+  });
+}
+
+function renderBarChart(allDrafters){
+  const ctx=document.getElementById('bar-chart');
+  const data=allDrafters.map(d=>tasks.filter(t=>t.status!=='Done'&&(t.assignee===d||(()=>{const j=jobs.find(x=>x.id===t.job_id);return j&&(j.drafter||'').split(',').map(s=>s.trim()).includes(d)&&!t.assignee;})())).length);
+  const h=Math.max(140,allDrafters.length*44+60);
+  document.getElementById('bar-wrap').style.height=h+'px';
+  if(barChart)barChart.destroy();
+  barChart=new Chart(ctx,{type:'bar',data:{labels:allDrafters,datasets:[{label:'Open tasks',data,backgroundColor:allDrafters.map((_,i)=>COLORS[i%COLORS.length]),borderRadius:4,barThickness:26}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{beginAtZero:true,ticks:{stepSize:1,color:'#6b6a65',font:{size:11}},grid:{color:'#f0efe8'},border:{display:false}},y:{ticks:{color:'#1a1a18',font:{size:13}},grid:{display:false},border:{display:false}}}}});
+}
+
+function renderPieChart(){
+  const counts={};tasks.forEach(t=>{counts[t.status]=(counts[t.status]||0)+1;});
+  const statuses=Object.keys(counts);
+  if(pieChart)pieChart.destroy();
+  if(!statuses.length){document.getElementById('pie-legend').innerHTML='<div style="color:#aaa;font-size:13px;text-align:center">No tasks yet</div>';return;}
+  pieChart=new Chart(document.getElementById('pie-chart'),{type:'doughnut',data:{labels:statuses,datasets:[{data:statuses.map(s=>counts[s]),backgroundColor:statuses.map(s=>TASK_COLORS[s]||'#ccc'),borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{display:false}}}});
+  document.getElementById('pie-legend').innerHTML=statuses.map(s=>`<div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:2px;background:${TASK_COLORS[s]||'#ccc'};flex-shrink:0"></span><span style="flex:1;font-size:13px">${s}</span><span style="font-size:13px;font-weight:500;color:#6b6a65">${counts[s]}</span></div>`).join('');
+}
+
+function renderTimeline(fJobs){
+  const today=new Date();today.setHours(0,0,0,0);
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()+30);
+  const entries=[];
+  fJobs.filter(j=>j.status!=='Complete'&&j.status!=='Cancelled').forEach(j=>{
+    [{key:'due_design',label:'Design'},{key:'due_draft',label:'Draft'},{key:'due_issue',label:'Issue'}].forEach(dt=>{
+      if(!j[dt.key])return;
+      const d=new Date(j[dt.key]+'T00:00:00');if(d>cutoff)return;
+      entries.push({date:j[dt.key],label:`${j.job_no} — ${j.client}`,type:dt.label,who:j.drafter||'—',days:daysDiff(j[dt.key]),dot:'#C41230'});
+    });
+  });
+  tasks.filter(t=>!t.status==='Done'&&t.due&&new Date(t.due+'T00:00:00')<=cutoff).forEach(t=>{
+    const j=jobs.find(x=>x.id===t.job_id)||{};
+    const days=daysDiff(t.due);if(days===null||days>30)return;
+    entries.push({date:t.due,label:t.name,type:'Task',who:t.assignee||j.drafter||'—',days,dot:'#eda100'});
+  });
+  entries.sort((a,b)=>a.date.localeCompare(b.date));
+  const tl=document.getElementById('timeline');
+  if(!entries.length){tl.innerHTML='<div class="empty">No upcoming dates in the next 30 days.</div>';return;}
+  tl.innerHTML=entries.map(e=>{
+    const over=e.days<0,soon=e.days>=0&&e.days<=7;
+    const dot=over?'#A32D2D':soon?'#854F0B':e.dot;
+    const cls=over?'over':soon?'soon':'';
+    const dStr=over?`${fmtDate(e.date)} — ${Math.abs(e.days)}d over`:e.days===0?`${fmtDate(e.date)} — today`:`${fmtDate(e.date)} — ${e.days}d`;
+    return`<div class="tl-row"><div class="tl-dot" style="background:${dot}"></div><div class="tl-info"><div><span class="tl-nm">${e.label}</span><span class="tl-lbl">${e.type}</span></div><div class="tl-who">${e.who}</div></div><div class="tl-date ${cls}">${dStr}</div></div>`;
+  }).join('');
+}
+
+async function signOut(){localStorage.removeItem('jt_role');await db.auth.signOut();window.location.replace('login.html');}
+
+loadAll();
+</script>
+</body>
+</html>
