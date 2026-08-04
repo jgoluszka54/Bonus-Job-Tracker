@@ -167,9 +167,30 @@ main{padding:1.25rem 1.5rem;max-width:900px;margin:0 auto}
       </div>
       <div class="field">
         <label>Due date</label>
-        <input type="date" id="a-due">
+        <input type="date" id="a-due" oninput="updateAddCallout()">
       </div>
     </div>
+    <div class="row2">
+      <div class="field">
+        <label>Drafting hours needed</label>
+        <select id="a-hours" oninput="updateAddCallout()">
+          <option value="">— Not set —</option>
+          <option value="1">1 hr</option><option value="2">2 hrs</option>
+          <option value="3">3 hrs</option><option value="4">4 hrs</option>
+          <option value="6">6 hrs</option><option value="8">8 hrs (1 day)</option>
+          <option value="12">12 hrs</option><option value="16">16 hrs (2 days)</option>
+          <option value="24">24 hrs (3 days)</option><option value="32">32 hrs (4 days)</option>
+          <option value="40">40 hrs (1 wk)</option><option value="60">60 hrs (1.5 wks)</option>
+          <option value="80">80 hrs (2 wks)</option><option value="120">120 hrs (3 wks)</option>
+          <option value="160">160 hrs (1 mo)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Or custom hours</label>
+        <input type="number" id="a-hours-custom" min="0.5" step="0.5" placeholder="e.g. 18" oninput="updateAddCallout()">
+      </div>
+    </div>
+    <div class="start-callout" id="a-start-callout" style="display:none;background:#EAF3DE;border:1px solid #C0DD97;border-radius:8px;padding:.7rem .9rem;font-size:13px;color:#27500A;margin-bottom:14px"></div>
     <div class="field">
       <label>Notes</label>
       <textarea id="a-notes" placeholder="Optional notes…"></textarea>
@@ -187,6 +208,26 @@ main{padding:1.25rem 1.5rem;max-width:900px;margin:0 auto}
     <div class="modal-hdr"><h2 id="modal-task-name" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Update task</h2><button class="close-btn" onclick="closeModal()">✕</button></div>
     <div class="field"><label>Status</label>
       <select id="m-status"><option>To do</option><option>In progress</option><option>Done</option><option>Blocked</option></select>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Drafting hours needed</label>
+        <select id="m-hours">
+          <option value="">— Not set —</option>
+          <option value="1">1 hr</option><option value="2">2 hrs</option>
+          <option value="3">3 hrs</option><option value="4">4 hrs</option>
+          <option value="6">6 hrs</option><option value="8">8 hrs (1 day)</option>
+          <option value="12">12 hrs</option><option value="16">16 hrs (2 days)</option>
+          <option value="24">24 hrs (3 days)</option><option value="32">32 hrs (4 days)</option>
+          <option value="40">40 hrs (1 wk)</option><option value="60">60 hrs (1.5 wks)</option>
+          <option value="80">80 hrs (2 wks)</option><option value="120">120 hrs (3 wks)</option>
+          <option value="160">160 hrs (1 mo)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Or custom hours</label>
+        <input type="number" id="m-hours-custom" min="0.5" step="0.5" placeholder="e.g. 18">
+      </div>
     </div>
     <div class="field"><label>Notes (optional)</label>
       <textarea id="m-notes" placeholder="Add a note or comment…"></textarea>
@@ -377,6 +418,8 @@ function openUpdateModal(id){
   const t=myTasks.find(x=>x.id===id)||{};
   document.getElementById('modal-task-name').textContent=t.name||'Update task';
   document.getElementById('m-status').value=t.status||'To do';
+  document.getElementById('m-hours').value=t.hours||'';
+  document.getElementById('m-hours-custom').value=t.hours_custom||'';
   document.getElementById('m-notes').value='';
   document.getElementById('modal-bg').classList.add('open');
   setTimeout(()=>document.getElementById('m-notes').focus(),50);
@@ -393,7 +436,11 @@ async function saveUpdate(){
     ? (existingNotes?existingNotes+'\n—\n':'')+`[${new Date().toLocaleDateString()}] ${notes}`
     : existingNotes;
   const {error}=await db.from('jt_tasks').update({
-    status,notes:combined,updated_at:new Date().toISOString()
+    status,
+    hours:parseFloat(document.getElementById('m-hours').value)||null,
+    hours_custom:parseFloat(document.getElementById('m-hours-custom').value)||null,
+    notes:combined,
+    updated_at:new Date().toISOString()
   }).eq('id',editTaskId);
   if(error){toast('Update failed: '+error.message,'error');}
   else{toast('Task updated','ok');closeModal();}
@@ -403,6 +450,23 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeA
 ['search','f-status'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',render);el.addEventListener('change',render);}});
 
 // ── Add task ───────────────────────────────────────────────────────────────
+function updateAddCallout(){
+  const due=document.getElementById('a-due').value;
+  const hrs=parseFloat(document.getElementById('a-hours-custom').value)||parseFloat(document.getElementById('a-hours').value)||0;
+  const el=document.getElementById('a-start-callout');
+  if(!due||!hrs){el.style.display='none';return;}
+  const start=calcStartDate(due,hrs,8);
+  if(!start){el.style.display='none';return;}
+  const n=daysDiff(start);
+  const days=Math.ceil(hrs/8);
+  let bg='#EAF3DE',border='#C0DD97',color='#27500A',msg='';
+  if(n<0){bg='#FCEBEB';border='#F7C1C1';color='#791F1F';msg=`⚠️ Should have started ${Math.abs(n)}d ago — ${hrs}h needed (${days} workday${days!==1?'s':''}).`;}
+  else if(n===0){bg='#FAEEDA';border='#FAC775';color='#633806';msg=`⏰ Must start TODAY — ${hrs}h needed (${days} workday${days!==1?'s':''}).`;}
+  else if(n<=3){bg='#FAEEDA';border='#FAC775';color='#633806';msg=`📅 Start by ${fmtDate(start)} — ${hrs}h (${days} workday${days!==1?'s':''}).`;}
+  else{msg=`✅ Start by ${fmtDate(start)} — ${hrs}h (${days} workday${days!==1?'s':''}).`;}
+  el.style.cssText=`display:block;background:${bg};border:1px solid ${border};border-radius:8px;padding:.7rem .9rem;font-size:13px;color:${color};margin-bottom:14px`;
+  el.innerHTML=msg;
+}
 function openAddTask(){
   const sel=document.getElementById('a-jobId');
   sel.innerHTML='<option value="">Select project…</option>'+
@@ -411,6 +475,9 @@ function openAddTask(){
   ['a-name','a-desc','a-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('a-priority').value='normal';
   document.getElementById('a-due').value='';
+  document.getElementById('a-hours').value='';
+  document.getElementById('a-hours-custom').value='';
+  document.getElementById('a-start-callout').style.display='none';
   document.getElementById('add-modal-bg').classList.add('open');
   setTimeout(()=>document.getElementById('a-name').focus(),50);
 }
@@ -427,6 +494,8 @@ async function saveNewTask(){
     priority:document.getElementById('a-priority').value,
     assignee:myProfile.drafter_name,
     due:document.getElementById('a-due').value||null,
+    hours:parseFloat(document.getElementById('a-hours').value)||null,
+    hours_custom:parseFloat(document.getElementById('a-hours-custom').value)||null,
     notes:document.getElementById('a-notes').value.trim(),
   });
   if(error){toast('Could not add: '+error.message,'error');return;}

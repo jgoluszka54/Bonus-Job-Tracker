@@ -324,12 +324,14 @@ function renderCal(){
 
 // ── Build calendar events (month + list) ──────────────────────────────────
 function buildEvents(){
-  const fd=document.getElementById('f-drafter').value;
-  const ft=document.getElementById('f-type').value;
+  // For drafter role: data is already pre-filtered at load time.
+  // For admin/viewer: respect the drafter dropdown filter.
+  const fd = document.getElementById('f-drafter').value;
+  const ft = document.getElementById('f-type').value;
   const today=new Date();today.setHours(0,0,0,0);
   const events=[];
   jobs.forEach(j=>{
-    if(fd&&j.drafter!==fd)return;
+    if(fd && !(j.drafter||'').split(',').map(s=>s.trim()).includes(fd))return;
     if(j.status==='Cancelled')return;
     const done=j.status==='Complete';
     const label=`${j.job_no} — ${j.client}`;
@@ -345,7 +347,6 @@ function buildEvents(){
     tasks.forEach(t=>{
       if(!t.due||t.status==='Done')return;
       const job=jobs.find(j=>j.id===t.job_id)||{};
-      if(fd&&job.drafter!==fd&&t.assignee!==fd)return;
       events.push({date:t.due,type:'task',over:new Date(t.due+'T00:00:00')<today,
         label:t.name,sub:`${job.job_no||'?'} — ${job.client||''}`,typeLabel:'Task',task:t,job});
     });
