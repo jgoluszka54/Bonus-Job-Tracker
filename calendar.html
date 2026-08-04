@@ -7,11 +7,11 @@
   try{
     var role=localStorage.getItem('jt_role');
     var auth=localStorage.getItem('jobtrack-auth');
-    if(!auth||!role||role!=='admin'){
-      // Clear stale data and go to login
-      localStorage.removeItem('jt_role');
-      window.location.replace('login.html');
-    }
+    if(!auth||!role){localStorage.removeItem('jt_role');window.location.replace('login.html');return;}
+    var t=JSON.parse(auth);
+    if(!t||!t.access_token){localStorage.removeItem('jt_role');window.location.replace('login.html');}
+    // admin, drafter, and viewer can all see the calendar
+    // (no role redirect needed — all authenticated users allowed)
   }catch(e){window.location.replace('login.html');}
 })();
 </script>
@@ -197,8 +197,31 @@ select.filter:focus{border-color:#C41230}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="db.js"></script>
 <script>
-// ── Add sign-out button ─────────────────────────────────────────────────────
+// ── Auth init — build nav based on role ────────────────────────────────────
 (async function(){
+  const role = localStorage.getItem('jt_role') || 'drafter';
+
+  // Build correct nav for this role
+  const nav = document.querySelector('nav');
+  if(nav){
+    if(role === 'admin'){
+      nav.innerHTML = `
+        <a href="index.html" class="nav-a">Projects</a>
+        <a href="tasks.html" class="nav-a">Tasks</a>
+        <a href="calendar.html" class="nav-a active">Calendar</a>
+        <a href="dashboard.html" class="nav-a">Dashboard</a>`;
+    } else if(role === 'drafter'){
+      nav.innerHTML = `
+        <a href="my-tasks.html" class="nav-a">My Tasks</a>
+        <a href="calendar.html" class="nav-a active">Calendar</a>`;
+    } else if(role === 'viewer'){
+      nav.innerHTML = `
+        <a href="viewer-dashboard.html" class="nav-a">Dashboard</a>
+        <a href="calendar.html" class="nav-a active">Calendar</a>`;
+    }
+  }
+
+  // Add sign-out button
   const hdr = document.querySelector('header');
   if(hdr && !document.getElementById('signout-btn')){
     const sb = document.createElement('button');

@@ -23,7 +23,7 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f2;color:#1a1a18;min-height:100vh;font-size:15px}
 body.ready{opacity:1}
 header{background:#fff;border-bottom:1px solid #e0dfd8;padding:.85rem 1.5rem;display:flex;align-items:center;gap:1rem;position:sticky;top:0;z-index:10;flex-wrap:wrap}
-.logo{font-size:19px;font-weight:700;letter-spacing:-.4px;white-space:nowrap}.logo span{color:#C41230}
+.logo{display:flex;align-items:center;margin-right:.5rem}
 .user-badge{display:flex;align-items:center;gap:8px;margin-left:auto;font-size:14px;color:#6b6a65}
 .avatar{width:32px;height:32px;border-radius:50%;background:#F7F0F1;color:#3D0A14;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
 .sign-out-btn{height:30px;padding:0 12px;border:1px solid #c8c7c0;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;color:#1a1a18}
@@ -109,8 +109,12 @@ main{padding:1.25rem 1.5rem;max-width:900px;margin:0 auto}
 <body>
 <header>
   <div class="logo"><img src="logo.jpg" alt="Bonus Electric & Technology Solutions" style="height:38px;width:auto;object-fit:contain;display:block"></div>
-  <span class="sync-dot" id="sync-dot" title="Live sync"></span>
+  <nav style="display:flex;gap:2px;flex:1">
+    <a href="my-tasks.html" style="padding:6px 14px;border-radius:6px;font-size:14px;text-decoration:none;font-weight:500;background:#F7F0F1;color:#C41230">My Tasks</a>
+    <a href="calendar.html" style="padding:6px 14px;border-radius:6px;font-size:14px;text-decoration:none;color:#6b6a65;font-weight:500">Calendar</a>
+  </nav>
   <div class="user-badge">
+    <span class="sync-dot" id="sync-dot" title="Live sync"></span>
     <div class="avatar" id="user-avatar">?</div>
     <span id="user-name">Loading…</span>
     <button class="sign-out-btn" onclick="signOut()">Sign out</button>
